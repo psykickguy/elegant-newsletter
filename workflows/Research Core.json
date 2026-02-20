@@ -1,0 +1,284 @@
+{
+  "name": "Research Core",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "b3b38f8d-bc65-45e7-8bbc-73128c9ef2bf",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://dev.to/feed/tag/frontend",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [224, 0],
+      "id": "ec9c86e5-27e6-4d4e-a2e6-bc0df833da81",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/reactjs/new.json?limit=5",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [224, 176],
+      "id": "d14afcbd-70c8-4397-8b03-8b80c8f41d66",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/search/repositories?q=stars:>50+topic:frontend&per_page=3",
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [224, 368],
+      "id": "6b4d7f65-e8f8-4f6c-b52d-b5b7a3abd7a6",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [464, 96],
+      "id": "aa1d00b8-9896-4a61-849d-16366776ac01",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nlet allArticles = [];\n\n// RSS\nitems.forEach(item => {\n  if (item.json.title && item.json.link) {\n    allArticles.push({\n      title: item.json.title,\n      url: item.json.link,\n      source: 'devto'\n    });\n  }\n});\n\n// Reddit\nitems.forEach(item => {\n  if (item.json.data && Array.isArray(item.json.data.children)) {\n    item.json.data.children.slice(0, 3).forEach(post => {\n      allArticles.push({\n        title: post.data.title,\n        url: `https://reddit.com${post.data.permalink}`,\n        source: 'reddit'\n      });\n    });\n  }\n});\n\n// GitHub\nitems.forEach(item => {\n  if (Array.isArray(item.json.items)) {\n    item.json.items.slice(0, 3).forEach(repo => {\n      allArticles.push({\n        title: repo.full_name,\n        url: repo.html_url,\n        source: 'github'\n      });\n    });\n  }\n});\n\nreturn allArticles.slice(0, 10).map((article, i) => ({\n  json: {\n    id: i + 1,\n    title: article.title.substring(0, 100),\n    url: article.url,\n    source: article.source\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [672, 96],
+      "id": "4acc3567-390f-4b7b-8bfc-e434838eb49a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "discoveries",
+          "mode": "list",
+          "cachedResultName": "discoveries"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "url": "={{ $json.url }}",
+            "source": "={{ $json.source }}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [880, 96],
+      "id": "bfc62ac6-e24a-4b7f-8719-2991e2de4cd1",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "qKU0Tc69L4alq44T",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ \"🚀 Research Complete!\\n\\nArticles saved: \" + $input.all().length }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [1088, 96],
+      "id": "ec6463d0-772c-4e3e-840d-8cbe8b837ab1",
+      "name": "HTTP Request3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3674d657-635e-456f-a86e-9e0ae9f10293",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
+  },
+  "id": "cEe6zmkiRzxkoOQV",
+  "tags": []
+}

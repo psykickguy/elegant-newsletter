@@ -1,0 +1,152 @@
+{
+  "name": "Draft Generator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "17295e98-3318-47d5-9152-ebed035dae39",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT title, url, source\nFROM discoveries\nORDER BY id DESC\nLIMIT 8;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [208, 0],
+      "id": "f0281c7e-aad3-44f5-b56f-8485c7d8141e",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "qKU0Tc69L4alq44T",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const articles = $input.all().map(item => item.json);\n\nconst grouped = articles.map((a, i) =>\n`${i + 1}. ${a.title} (${a.source})`\n).join('\\n');\n\nconst prompt = `\nYou are a senior frontend editor writing a high-quality weekly newsletter.\n\nUsing the articles below:\n\n${grouped}\n\nWrite a concise, insight-driven HTML newsletter.\n\nSTRICT RULES:\nUse this exact structure:\n\n<h1>Frontend Weekly</h1>\n\n<h2>⚡ Performance & Tooling</h2>\n\n<h2>🤖 AI & Developer Experience</h2>\n\n<h2>🧩 Architecture & Patterns</h2>\n\n<h2>🚀 Recommended Reads</h2>\n\n- Professional tone for senior frontend engineers\n- Avoid fluff\n- Avoid generic greetings\n- 350–450 words\n- End with CTA to elegantfrontend.training\n\nReturn ONLY valid HTML.\n`;\n\nreturn [{ json: { prompt } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [416, 0],
+      "id": "3c2c245b-ab3b-45fe-a976-ad1b71de3b19",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2:3b\",\n  \"prompt\": {{ JSON.stringify($json.prompt) }},\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [624, 0],
+      "id": "6bd82e7c-d22c-4af6-ac5b-1b148a9618a0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      html: $json.response\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [832, 0],
+      "id": "98cd07a1-e301-40f9-a89f-7c01479344f2",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n(() => {\n  const plainText = $json.html\n    .replace(/<h1>/g, \"*\")\n    .replace(/<\\/h1>/g, \"*\\n\")\n    .replace(/<h2>/g, \"\\n\\n*\")\n    .replace(/<\\/h2>/g, \"*\\n\")\n    .replace(/<[^>]+>/g, \"\")\n    .trim();\n\n  const chunkSize = 2800; // Safe margin under Slack limit\n  const chunks = [];\n\n  for (let i = 0; i < plainText.length; i += chunkSize) {\n    chunks.push(plainText.substring(i, i + chunkSize));\n  }\n\n  const blocks = [\n    {\n      type: \"section\",\n      text: {\n        type: \"mrkdwn\",\n        text: \"*📰 Frontend Weekly Draft Generated*\"\n      }\n    },\n    {\n      type: \"section\",\n      text: {\n        type: \"mrkdwn\",\n        text: \"🧠 Based on 8 latest articles\\n📅 Generated at: \" + new Date().toLocaleString()\n      }\n    },\n    { type: \"divider\" }\n  ];\n\n  chunks.forEach(chunk => {\n    blocks.push({\n      type: \"section\",\n      text: {\n        type: \"mrkdwn\",\n        text: chunk\n      }\n    });\n  });\n\n  return {\n    text: \"Frontend Weekly\",\n    blocks: blocks\n  };\n})()\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [1040, 0],
+      "id": "95e82506-4e84-41bb-b74f-c8254b856ea2",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7a7dec1c-49db-4cd0-a302-ba0c792958f4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
+  },
+  "id": "gUzvKrLCCNen4Rnb",
+  "tags": []
+}
