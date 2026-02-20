@@ -5,7 +5,10 @@
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [0, 0],
+      "position": [
+        0,
+        0
+      ],
       "id": "b3b38f8d-bc65-45e7-8bbc-73128c9ef2bf",
       "name": "When clicking ‘Execute workflow’"
     },
@@ -16,7 +19,10 @@
       },
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
-      "position": [224, 0],
+      "position": [
+        224,
+        0
+      ],
       "id": "ec9c86e5-27e6-4d4e-a2e6-bc0df833da81",
       "name": "RSS Read"
     },
@@ -29,7 +35,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [224, 176],
+      "position": [
+        224,
+        176
+      ],
       "id": "d14afcbd-70c8-4397-8b03-8b80c8f41d66",
       "name": "HTTP Request"
     },
@@ -42,7 +51,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [224, 368],
+      "position": [
+        224,
+        368
+      ],
       "id": "6b4d7f65-e8f8-4f6c-b52d-b5b7a3abd7a6",
       "name": "HTTP Request1"
     },
@@ -55,7 +67,10 @@
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [464, 96],
+      "position": [
+        464,
+        96
+      ],
       "id": "aa1d00b8-9896-4a61-849d-16366776ac01",
       "name": "Merge"
     },
@@ -65,7 +80,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [672, 96],
+      "position": [
+        672,
+        96
+      ],
       "id": "4acc3567-390f-4b7b-8bfc-e434838eb49a",
       "name": "Code in JavaScript"
     },
@@ -89,7 +107,9 @@
             "url": "={{ $json.url }}",
             "source": "={{ $json.source }}"
           },
-          "matchingColumns": ["id"],
+          "matchingColumns": [
+            "id"
+          ],
           "schema": [
             {
               "id": "id",
@@ -146,7 +166,10 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
-      "position": [880, 96],
+      "position": [
+        880,
+        96
+      ],
       "id": "bfc62ac6-e24a-4b7f-8719-2991e2de4cd1",
       "name": "Insert rows in a table",
       "credentials": {
@@ -155,27 +178,6 @@
           "name": "Postgres account"
         }
       }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "text",
-              "value": "={{ \"🚀 Research Complete!\\n\\nArticles saved: \" + $input.all().length }}\n"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [1088, 96],
-      "id": "ec6463d0-772c-4e3e-840d-8cbe8b837ab1",
-      "name": "HTTP Request3"
     }
   ],
   "pinData": {},
@@ -258,13 +260,7 @@
     },
     "Insert rows in a table": {
       "main": [
-        [
-          {
-            "node": "HTTP Request3",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     }
   },
@@ -274,7 +270,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "3674d657-635e-456f-a86e-9e0ae9f10293",
+  "versionId": "1edcdcaf-be76-40f6-801b-9ee833be2a18",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
