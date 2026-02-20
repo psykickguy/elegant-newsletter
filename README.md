@@ -28,7 +28,7 @@ Database → Prompt Builder → Ollama → HTML Draft → Slack
 ## Setup
 
 ```bash
-git clone [<repo>](https://github.com/psykickguy/elegant-newsletter.git)
+git clone https://github.com/psykickguy/elegant-newsletter.git
 cd elegant-newsletter
 docker-compose up -d
 ```
