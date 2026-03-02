@@ -11,29 +11,11 @@
     },
     {
       "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT title, url, source\nFROM discoveries\nORDER BY id DESC\nLIMIT 8;\n",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [208, 0],
-      "id": "f0281c7e-aad3-44f5-b56f-8485c7d8141e",
-      "name": "Execute a SQL query",
-      "credentials": {
-        "postgres": {
-          "id": "qKU0Tc69L4alq44T",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "const articles = $input.all().map(item => item.json);\n\nconst grouped = articles.map((a, i) =>\n`${i + 1}. ${a.title} (${a.source})`\n).join('\\n');\n\nconst prompt = `\nYou are a senior frontend editor writing a high-quality weekly newsletter.\n\nUsing the articles below:\n\n${grouped}\n\nWrite a concise, insight-driven HTML newsletter.\n\nSTRICT RULES:\nUse this exact structure:\n\n<h1>Frontend Weekly</h1>\n\n<h2>⚡ Performance & Tooling</h2>\n\n<h2>🤖 AI & Developer Experience</h2>\n\n<h2>🧩 Architecture & Patterns</h2>\n\n<h2>🚀 Recommended Reads</h2>\n\n- Professional tone for senior frontend engineers\n- Avoid fluff\n- Avoid generic greetings\n- 350–450 words\n- End with CTA to elegantfrontend.training\n\nReturn ONLY valid HTML.\n`;\n\nreturn [{ json: { prompt } }];"
+        "jsCode": "const articles = $input.all().map(item => item.json);\n\nconst grouped = articles.map((a, i) =>\n`${i + 1}. ${a.title} - ${a.url} (${a.source})`\n).join('\\n');\n\nconst prompt = `\nYou are a senior frontend editor writing a high-quality weekly newsletter.\n\nUsing the articles below:\n\n${grouped}\n\nWrite a concise, insight-driven newsletter.\n\nSTRICT RULES:\n\n- Generate ONLY inner content blocks.\n- Do NOT include <html>, <body>, or outer wrapper tables.\n- Use clean semantic HTML only.\n- Return ONLY valid HTML.\n\nUse this exact structure:\n\n<h1>Frontend Weekly</h1>\n\n<h2>Performance & Tooling</h2>\n<p>...</p>\n<a href=\"URL\">Read Full Breakdown</a>\n\n<h2>AI & Developer Experience</h2>\n<p>...</p>\n<a href=\"URL\">Read Full Breakdown</a>\n\n<h2>Architecture & Patterns</h2>\n<p>...</p>\n<a href=\"URL\">Read Full Breakdown</a>\n\n<h2>Recommended Reads</h2>\n<p>Short curated list with anchor links</p>\n\nAdditional rules:\n- Professional tone for senior frontend engineers\n- Avoid fluff\n- Avoid generic greetings\n- 350–450 words\n- End with a short CTA paragraph linking to https://elegantfrontend.training\n\nReturn ONLY valid HTML.\n`;\n\nreturn [{ json: { prompt } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [416, 0],
+      "position": [208, 128],
       "id": "3c2c245b-ab3b-45fe-a976-ad1b71de3b19",
       "name": "Code in JavaScript"
     },
@@ -48,17 +30,17 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [624, 0],
+      "position": [464, -160],
       "id": "6bd82e7c-d22c-4af6-ac5b-1b148a9618a0",
       "name": "HTTP Request"
     },
     {
       "parameters": {
-        "jsCode": "return [\n  {\n    json: {\n      html: $json.response\n    }\n  }\n];\n"
+        "jsCode": "const aiContent = $input.first().json.finalDraft;\n\n// Style injected content\nconst styledContent = aiContent\n  .replace(/<h2>/g, '<h2 style=\"margin:30px 0 10px 0;font-size:20px;\">')\n  .replace(/<p>/g, '<p style=\"color:#444;line-height:1.6;margin:10px 0;\">')\n  .replace(/<a /g, '<a style=\"color:#F26C2E;text-decoration:none;font-weight:bold;\" ');\n\nconst template = `\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f5f5f5;\">\n<tr>\n<td align=\"center\">\n<table width=\"600\" cellpadding=\"20\" cellspacing=\"0\" style=\"background:#ffffff;font-family:Arial,sans-serif;\">\n\n<tr>\n<td style=\"background:#F26C2E;height:6px;padding:0;\"></td>\n</tr>\n\n\n\n<tr>\n<td>\n${styledContent}\n</td>\n</tr>\n\n<tr>\n<td align=\"center\">\n<a href=\"https://elegantfrontend.training\"\nstyle=\"display:inline-block;padding:12px 20px;background:#F26C2E;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;\">\nExplore More on Elegant Frontend\n</a>\n</td>\n</tr>\n\n<tr>\n<td style=\"font-size:12px;color:#888;text-align:center;\">\nYou're receiving this because you subscribed at elegantfrontend.training\n</td>\n</tr>\n\n</table>\n</td>\n</tr>\n</table>\n`;\n\nreturn [{ json: { html: template } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [832, 0],
+      "position": [1952, 384],
       "id": "98cd07a1-e301-40f9-a89f-7c01479344f2",
       "name": "Code in JavaScript1"
     },
@@ -68,14 +50,249 @@
         "url": "={{ $env.SLACK_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{\n(() => {\n  const plainText = $json.html\n    .replace(/<h1>/g, \"*\")\n    .replace(/<\\/h1>/g, \"*\\n\")\n    .replace(/<h2>/g, \"\\n\\n*\")\n    .replace(/<\\/h2>/g, \"*\\n\")\n    .replace(/<[^>]+>/g, \"\")\n    .trim();\n\n  const chunkSize = 2800; // Safe margin under Slack limit\n  const chunks = [];\n\n  for (let i = 0; i < plainText.length; i += chunkSize) {\n    chunks.push(plainText.substring(i, i + chunkSize));\n  }\n\n  const blocks = [\n    {\n      type: \"section\",\n      text: {\n        type: \"mrkdwn\",\n        text: \"*📰 Frontend Weekly Draft Generated*\"\n      }\n    },\n    {\n      type: \"section\",\n      text: {\n        type: \"mrkdwn\",\n        text: \"🧠 Based on 8 latest articles\\n📅 Generated at: \" + new Date().toLocaleString()\n      }\n    },\n    { type: \"divider\" }\n  ];\n\n  chunks.forEach(chunk => {\n    blocks.push({\n      type: \"section\",\n      text: {\n        type: \"mrkdwn\",\n        text: chunk\n      }\n    });\n  });\n\n  return {\n    text: \"Frontend Weekly\",\n    blocks: blocks\n  };\n})()\n}}",
+        "jsonBody": "={{ JSON.stringify($json) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [1040, 0],
+      "position": [2448, 224],
       "id": "95e82506-4e84-41bb-b74f-c8254b856ea2",
       "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT title, url, source\nFROM discoveries\nORDER BY id DESC\nLIMIT 8;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [208, -112],
+      "id": "f0281c7e-aad3-44f5-b56f-8485c7d8141e",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "qKU0Tc69L4alq44T",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "drafts",
+          "mode": "list",
+          "cachedResultName": "drafts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "html_content": "={{ $json.html }}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "html_content",
+              "displayName": "html_content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [2112, 240],
+      "id": "871ca7eb-1afe-47a7-8d5f-a0ff7d69d19f",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "qKU0Tc69L4alq44T",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Grab the HTML directly from your template node to be safe\nconst html = $node[\"Code in JavaScript1\"].json.html || \"\";\n\nconst plainText = html\n  .replace(/<h1>/g, \"*\")\n  .replace(/<\\/h1>/g, \"*\\n\")\n  .replace(/<h2>/g, \"\\n\\n*\")\n  .replace(/<\\/h2>/g, \"*\\n\")\n  .replace(/<[^>]+>/g, \"\")\n  .substring(0, 1200);\n\n// Fallback message if something goes wrong\nconst finalMessage = plainText.trim().length > 0 ? plainText : \"Newsletter draft generated but preview is unavailable.\";\n\nreturn [{\n  json: {\n    text: \"Frontend Weekly Draft\",\n    blocks: [\n      {\n        type: \"section\",\n        text: {\n          type: \"mrkdwn\",\n          text: finalMessage\n        }\n      }\n    ]\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2272, 32],
+      "id": "f3bc5396-226e-435c-9c04-3084aa814e77",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2:3b\",\n  \"prompt\": {{ JSON.stringify($json.prompt) }},\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [896, 0],
+      "id": "1f1f21e2-860d-44dd-ba9f-971ac686870d",
+      "name": "HTTP Request2",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const draft = $json.originalDraft;\n\nconst evaluationPrompt = `\nYou are a senior technical editor.\n\nEvaluate the following newsletter draft on a scale of 1 to 10.\n\nCriteria:\n- Clarity\n- Insight depth\n- Professional tone\n- Non-generic writing\n- Actionability\n\nReturn STRICT JSON only:\n\n{\n  \"score\": number,\n  \"feedback\": \"short explanation\"\n}\n\nNewsletter draft:\n${draft}\n`;\n\nreturn [{\n  json: {\n    prompt: evaluationPrompt,\n    originalDraft: draft\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [912, -240],
+      "id": "e43f096e-b00e-497f-b463-078a13942024",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const draft = $input.first().json.response;\n\nreturn [{\n  json: {\n    originalDraft: draft\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [496, 144],
+      "id": "c504ac5e-ca79-4a83-8243-640b0af06cbd",
+      "name": "Preserve Draft"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5afcc213-b9f2-4be1-97bb-52d68993e639",
+              "leftValue": "=approved",
+              "rightValue": "false",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [1200, 368],
+      "id": "bafcfca4-a37f-44c0-b430-faed76e5a95c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get the raw response and clean up special characters\nlet raw = $input.first().json.response || \"\";\n\n// Remove markdown blocks and normalize whitespace/newlines\nraw = raw.replace(/```json/g, \"\")\n         .replace(/```/g, \"\")\n         .replace(/\\n/g, \" \") \n         .trim();\n\nlet evaluation = { score: 0, feedback: \"Parsing failed\" };\n\ntry {\n  evaluation = JSON.parse(raw);\n} catch (e) {\n  // Regex fallback if JSON is still malformed\n  const scoreMatch = raw.match(/\"score\":\\s*(\\d+)/);\n  if (scoreMatch) {\n    evaluation.score = parseInt(scoreMatch[1]);\n    evaluation.feedback = \"Extracted via fallback (JSON format error)\";\n  }\n}\n\n// 2. Safely grab the original draft from the input\nconst originalDraft = $input.first().json.originalDraft || \"\";\n\nreturn [{\n  json: {\n    approved: (evaluation.score || 0) >= 8,\n    score: evaluation.score || 0,\n    feedback: evaluation.feedback || \"Review required\",\n    originalDraft: originalDraft,\n    retryCount: 0\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 288],
+      "id": "d8761a72-f03a-43fb-9e5b-e6f65d2eb8fe",
+      "name": "Parse Evaluation"
+    },
+    {
+      "parameters": {
+        "jsCode": "const draft = $json.originalDraft;\nconst feedback = $json.feedback;\n\nconst refinePrompt = `\nYou are a senior technical editor.\n\nImprove the following newsletter based on this feedback:\n\nFeedback:\n${feedback}\n\nOriginal Draft:\n${draft}\n\nMake it sharper, more insight-driven, and less generic.\nReturn ONLY improved HTML.\n`;\n\nreturn [{\n  json: {\n    prompt: refinePrompt\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1424, 192],
+      "id": "2bcdd29a-0c5d-43b3-ab19-d6a50dcfee27",
+      "name": "Build Refinement Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2:3b\",\n  \"prompt\": {{ JSON.stringify($json.prompt) }},\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [1600, 96],
+      "id": "5f89f479-d36a-4c10-86c7-cb5d17fafa39",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const improvedDraft = $input.first().json.response;\n\nreturn [{\n  json: {\n    finalDraft: improvedDraft,\n    wasRefined: true\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1808, 128],
+      "id": "ed4fb4aa-027b-4ff8-bb42-1d8bae02955c",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    finalDraft: $json.originalDraft,\n    wasRefined: false\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1408, 416],
+      "id": "1b6a519f-227c-4d0c-ba03-6a713b3d53b9",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [1744, 400],
+      "id": "19f7f2a1-78d9-4593-95b7-9b08bd7d6a53",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    response: $json.response,\n    originalDraft: $node[\"Code in JavaScript3\"].json.originalDraft\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1104, 64],
+      "id": "0dda30d8-dd5b-4dad-976f-421b3785bb04",
+      "name": "Code in JavaScript6"
     }
   ],
   "pinData": {},
@@ -85,17 +302,6 @@
         [
           {
             "node": "Execute a SQL query",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Execute a SQL query": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript",
             "type": "main",
             "index": 0
           }
@@ -117,7 +323,7 @@
       "main": [
         [
           {
-            "node": "Code in JavaScript1",
+            "node": "Preserve Draft",
             "type": "main",
             "index": 0
           }
@@ -128,7 +334,168 @@
       "main": [
         [
           {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
             "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preserve Draft": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Build Refinement Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Evaluation": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Refinement Prompt": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Parse Evaluation",
             "type": "main",
             "index": 0
           }
@@ -142,7 +509,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "7a7dec1c-49db-4cd0-a302-ba0c792958f4",
+  "versionId": "3578509e-18b3-4487-b10c-9e2eb9b03c14",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
