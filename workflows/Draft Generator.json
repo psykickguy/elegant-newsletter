@@ -55,7 +55,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [2448, 224],
+      "position": [2464, 80],
       "id": "95e82506-4e84-41bb-b74f-c8254b856ea2",
       "name": "HTTP Request1"
     },
@@ -143,16 +143,6 @@
           "name": "Postgres account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Grab the HTML directly from your template node to be safe\nconst html = $node[\"Code in JavaScript1\"].json.html || \"\";\n\nconst plainText = html\n  .replace(/<h1>/g, \"*\")\n  .replace(/<\\/h1>/g, \"*\\n\")\n  .replace(/<h2>/g, \"\\n\\n*\")\n  .replace(/<\\/h2>/g, \"*\\n\")\n  .replace(/<[^>]+>/g, \"\")\n  .substring(0, 1200);\n\n// Fallback message if something goes wrong\nconst finalMessage = plainText.trim().length > 0 ? plainText : \"Newsletter draft generated but preview is unavailable.\";\n\nreturn [{\n  json: {\n    text: \"Frontend Weekly Draft\",\n    blocks: [\n      {\n        type: \"section\",\n        text: {\n          type: \"mrkdwn\",\n          text: finalMessage\n        }\n      }\n    ]\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [2272, 32],
-      "id": "f3bc5396-226e-435c-9c04-3084aa814e77",
-      "name": "Code in JavaScript2"
     },
     {
       "parameters": {
@@ -293,6 +283,37 @@
       "position": [1104, 64],
       "id": "0dda30d8-dd5b-4dad-976f-421b3785bb04",
       "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "fromEmail": "shubhdas2005@gmail.com",
+        "toEmail": "shubhdas2005@gmail.com",
+        "subject": "=Frontend Weekly Newsletter – {{$now.format(\"DD\")}}",
+        "html": "={{ $json.html_content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2352, 384],
+      "id": "b484acb4-7e7d-40c2-b97f-029d48789bce",
+      "name": "Send an Email",
+      "webhookId": "37d6db3c-843e-4ffb-9ec4-f7698543b2c4",
+      "credentials": {
+        "smtp": {
+          "id": "yrcO0NU5nMwma9xm",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Grab the HTML directly from your template node to be safe\nconst html = $node[\"Code in JavaScript1\"].json.html || \"\";\n\nconst plainText = html\n  .replace(/<h1>/g, \"*\")\n  .replace(/<\\/h1>/g, \"*\\n\")\n  .replace(/<h2>/g, \"\\n\\n*\")\n  .replace(/<\\/h2>/g, \"*\\n\")\n  .replace(/<[^>]+>/g, \"\")\n  .substring(0, 1200);\n\n// Fallback message if something goes wrong\nconst finalMessage = plainText.trim().length > 0 ? plainText : \"Newsletter draft generated but preview is unavailable.\";\n\nreturn [{\n  json: {\n    text: \"Frontend Weekly Draft\",\n    blocks: [\n      {\n        type: \"section\",\n        text: {\n          type: \"mrkdwn\",\n          text: finalMessage\n        }\n      }\n    ]\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2272, 32],
+      "id": "f3bc5396-226e-435c-9c04-3084aa814e77",
+      "name": "Code in JavaScript2"
     }
   ],
   "pinData": {},
@@ -356,18 +377,7 @@
       "main": [
         [
           {
-            "node": "Code in JavaScript2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript2": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request1",
+            "node": "Send an Email",
             "type": "main",
             "index": 0
           }
@@ -501,6 +511,17 @@
           }
         ]
       ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -509,7 +530,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "3578509e-18b3-4487-b10c-9e2eb9b03c14",
+  "versionId": "fe1f2c7b-c2b8-4e1a-b5b2-4a2955e3ea4a",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
