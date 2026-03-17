@@ -49,6 +49,10 @@
             {
               "name": "tbm",
               "value": "nws"
+            },
+            {
+              "name": "tbs",
+              "value": "qdr:w"
             }
           ]
         },
@@ -105,7 +109,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nlet allArticles = [];\n\n// THE \"ELITE\" TARGETS\nconst targets = ['claude', 'cursor', 'copilot', 'ollama', 'deepseek', 'agent', 'productivity'];\n\n// 1. SerpApi returns results inside an array called 'news_results'\nconst rawResults = items[0].json.news_results || [];\n\nrawResults.forEach(article => {\n  // Safe extraction of values\n  let title = (article.title || \"\").toLowerCase();\n  let snippet = (article.snippet || \"\").toLowerCase();\n  \n  // FIX: Access .name because .source is an object in SerpApi\n  let sourceName = \"\";\n  if (typeof article.source === 'string') {\n    sourceName = article.source;\n  } else if (article.source && article.source.name) {\n    sourceName = article.source.name;\n  }\n  \n  let content = title + \" \" + snippet;\n  let score = 0;\n\n  // LAYER 1: Authority check\n  const seriousSources = ['techcrunch', 'wired', 'the verge', 'venturebeat', 'bloomberg', 'reuters', 'zdnet'];\n  seriousSources.forEach(s => {\n    if (sourceName.toLowerCase().includes(s)) score += 15;\n  });\n\n  // LAYER 2: Topic Relevance\n  targets.forEach(t => {\n    if (content.includes(t)) score += 10;\n  });\n\n  // LAYER 3: Penalty for \"fluff\"\n  if (title.length < 30) score -= 10;\n\n  if (score > 15) {\n    allArticles.push({\n      title: article.title,\n      url: article.link,\n      source: sourceName, // Store the clean string name\n      date: article.date,\n      category: \"Industry Intelligence\",\n      score: score\n    });\n  }\n});\n\n// Final Sort: Best news at the top\nreturn allArticles\n  .sort((a, b) => b.score - a.score)\n  .slice(0, 6)\n  .map((art, i) => ({ json: { id: i + 1, ...art } }));"
+        "jsCode": "const items = $input.all();\nlet allArticles = [];\n\n// THE \"ELITE\" TARGETS\nconst targets = ['claude', 'cursor', 'copilot', 'ollama', 'deepseek', 'agent'];\n\n// CLIENT REQUIREMENT: Improvement & Seriousness\nconst improvementSignals = ['improvement', 'faster', 'release', 'update', 'new feature', 'optimized', 'performance', 'benchmark', 'productivity'];\n\nconst rawResults = items[0].json.news_results || [];\n\nrawResults.forEach(article => {\n  let title = (article.title || \"\").toLowerCase();\n  let snippet = (article.snippet || \"\").toLowerCase();\n  \n  let sourceName = \"\";\n  if (typeof article.source === 'string') sourceName = article.source;\n  else if (article.source && article.source.name) sourceName = article.source.name;\n  \n  let content = title + \" \" + snippet;\n  let score = 0;\n\n  // 1. IMPROVEMENT FILTER (Mandatory weight)\n  improvementSignals.forEach(s => {\n    if (content.includes(s)) score += 12;\n  });\n\n  // 2. TOOL RELEVANCE\n  targets.forEach(t => {\n    if (content.includes(t)) score += 10;\n  });\n\n  // 3. SOURCE AUTHORITY\n  const authoritySources = ['techcrunch', 'wired', 'the verge', 'venturebeat', 'bloomberg', 'zdnet'];\n  if (authoritySources.some(s => sourceName.toLowerCase().includes(s))) score += 8;\n\n  // STRICT THRESHOLD: Must mention an improvement or a major tool\n  if (score > 18 && title.length > 35) {\n    allArticles.push({\n      title: article.title,\n      url: article.link,\n      source: sourceName,\n      date: article.date,\n      category: \"Frontend Evolution\",\n      score: score\n    });\n  }\n});\n\nreturn allArticles\n  .sort((a, b) => b.score - a.score)\n  .slice(0, 6)\n  .map((art, i) => ({ json: { id: i + 1, ...art } }));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -359,7 +363,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "aba889c2-233c-4c38-8839-8e6518241642",
+  "versionId": "ee863c2b-682d-4bdb-9986-2979ec42f974",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
