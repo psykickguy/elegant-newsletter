@@ -6,29 +6,52 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        -256,
+        16
       ],
       "id": "b3b38f8d-bc65-45e7-8bbc-73128c9ef2bf",
       "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
-        "url": "https://dev.to/feed/tag/frontend",
+        "url": "https://www.artificialintelligence-news.com/feed/",
         "options": {}
       },
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        224,
-        0
+        192,
+        -288
       ],
       "id": "ec9c86e5-27e6-4d4e-a2e6-bc0df833da81",
       "name": "RSS Read"
     },
     {
       "parameters": {
-        "url": "https://www.reddit.com/r/reactjs/new.json?limit=5",
+        "url": "https://serpapi.com/search.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "serpApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_news"
+            },
+            {
+              "name": "q",
+              "value": "(Claude Code OR Cursor AI OR \"AI Productivity\") AND (benchmark OR technical OR enterprise)"
+            },
+            {
+              "name": "gl",
+              "value": "us"
+            },
+            {
+              "name": "tbm",
+              "value": "nws"
+            }
+          ]
+        },
         "options": {
           "allowUnauthorizedCerts": true
         }
@@ -36,15 +59,21 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        224,
-        176
+        144,
+        192
       ],
       "id": "d14afcbd-70c8-4397-8b03-8b80c8f41d66",
-      "name": "HTTP Request"
+      "name": "HTTP Request",
+      "credentials": {
+        "serpApi": {
+          "id": "CqiRReBZKP1DhDIH",
+          "name": "SerpAPI account"
+        }
+      }
     },
     {
       "parameters": {
-        "url": "https://api.github.com/search/repositories?q=stars:>50+topic:frontend&per_page=3",
+        "url": "https://hn.algolia.com/api/v1/search?query=ai+productivity&tags=story&numericFilters=points>50",
         "options": {
           "allowUnauthorizedCerts": false
         }
@@ -52,7 +81,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        224,
+        176,
         368
       ],
       "id": "6b4d7f65-e8f8-4f6c-b52d-b5b7a3abd7a6",
@@ -62,7 +91,7 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "numberInputs": 3,
+        "numberInputs": 5,
         "options": {}
       },
       "type": "n8n-nodes-base.merge",
@@ -76,7 +105,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nlet allArticles = [];\n\n// RSS\nitems.forEach(item => {\n  if (item.json.title && item.json.link) {\n    allArticles.push({\n      title: item.json.title,\n      url: item.json.link,\n      source: 'devto'\n    });\n  }\n});\n\n// Reddit\nitems.forEach(item => {\n  if (item.json.data && Array.isArray(item.json.data.children)) {\n    item.json.data.children.slice(0, 3).forEach(post => {\n      allArticles.push({\n        title: post.data.title,\n        url: `https://reddit.com${post.data.permalink}`,\n        source: 'reddit'\n      });\n    });\n  }\n});\n\n// GitHub\nitems.forEach(item => {\n  if (Array.isArray(item.json.items)) {\n    item.json.items.slice(0, 3).forEach(repo => {\n      allArticles.push({\n        title: repo.full_name,\n        url: repo.html_url,\n        source: 'github'\n      });\n    });\n  }\n});\n\nreturn allArticles.slice(0, 10).map((article, i) => ({\n  json: {\n    id: i + 1,\n    title: article.title.substring(0, 100),\n    url: article.url,\n    source: article.source\n  }\n}));\n"
+        "jsCode": "const items = $input.all();\nlet allArticles = [];\n\n// THE \"ELITE\" TARGETS\nconst targets = ['claude', 'cursor', 'copilot', 'ollama', 'deepseek', 'agent', 'productivity'];\n\n// 1. SerpApi returns results inside an array called 'news_results'\nconst rawResults = items[0].json.news_results || [];\n\nrawResults.forEach(article => {\n  // Safe extraction of values\n  let title = (article.title || \"\").toLowerCase();\n  let snippet = (article.snippet || \"\").toLowerCase();\n  \n  // FIX: Access .name because .source is an object in SerpApi\n  let sourceName = \"\";\n  if (typeof article.source === 'string') {\n    sourceName = article.source;\n  } else if (article.source && article.source.name) {\n    sourceName = article.source.name;\n  }\n  \n  let content = title + \" \" + snippet;\n  let score = 0;\n\n  // LAYER 1: Authority check\n  const seriousSources = ['techcrunch', 'wired', 'the verge', 'venturebeat', 'bloomberg', 'reuters', 'zdnet'];\n  seriousSources.forEach(s => {\n    if (sourceName.toLowerCase().includes(s)) score += 15;\n  });\n\n  // LAYER 2: Topic Relevance\n  targets.forEach(t => {\n    if (content.includes(t)) score += 10;\n  });\n\n  // LAYER 3: Penalty for \"fluff\"\n  if (title.length < 30) score -= 10;\n\n  if (score > 15) {\n    allArticles.push({\n      title: article.title,\n      url: article.link,\n      source: sourceName, // Store the clean string name\n      date: article.date,\n      category: \"Industry Intelligence\",\n      score: score\n    });\n  }\n});\n\n// Final Sort: Best news at the top\nreturn allArticles\n  .sort((a, b) => b.score - a.score)\n  .slice(0, 6)\n  .map((art, i) => ({ json: { id: i + 1, ...art } }));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -178,6 +207,34 @@
           "name": "Postgres account"
         }
       }
+    },
+    {
+      "parameters": {
+        "url": "https://dev.to/feed/tag/aiengineering",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        128,
+        -112
+      ],
+      "id": "d3fd1f1a-2693-4d28-8fb3-b8a7cfa88710",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {
+        "url": "https://huggingface.co/blog/feed.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        32
+      ],
+      "id": "4a0cd16e-82ed-4ee1-96f3-127937bd9f72",
+      "name": "RSS Read2"
     }
   ],
   "pinData": {},
@@ -197,6 +254,16 @@
           },
           {
             "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
             "type": "main",
             "index": 0
           }
@@ -220,7 +287,7 @@
           {
             "node": "Merge",
             "type": "main",
-            "index": 1
+            "index": 3
           }
         ]
       ]
@@ -231,7 +298,7 @@
           {
             "node": "Merge",
             "type": "main",
-            "index": 2
+            "index": 4
           }
         ]
       ]
@@ -262,6 +329,28 @@
       "main": [
         []
       ]
+    },
+    "RSS Read2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -270,7 +359,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "1edcdcaf-be76-40f6-801b-9ee833be2a18",
+  "versionId": "aba889c2-233c-4c38-8839-8e6518241642",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
