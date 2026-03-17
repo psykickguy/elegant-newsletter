@@ -6,8 +6,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -256,
-        16
+        -368,
+        -96
       ],
       "id": "b3b38f8d-bc65-45e7-8bbc-73128c9ef2bf",
       "name": "When clicking ‘Execute workflow’"
@@ -20,7 +20,7 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        192,
+        80,
         -288
       ],
       "id": "ec9c86e5-27e6-4d4e-a2e6-bc0df833da81",
@@ -40,7 +40,7 @@
             },
             {
               "name": "q",
-              "value": "(Claude Code OR Cursor AI OR \"AI Productivity\") AND (benchmark OR technical OR enterprise)"
+              "value": "(Claude Code OR Cursor AI OR \"AI coding agent\") improvement"
             },
             {
               "name": "gl",
@@ -53,6 +53,10 @@
             {
               "name": "tbs",
               "value": "qdr:w"
+            },
+            {
+              "name": "sort",
+              "value": "date"
             }
           ]
         },
@@ -77,7 +81,24 @@
     },
     {
       "parameters": {
-        "url": "https://hn.algolia.com/api/v1/search?query=ai+productivity&tags=story&numericFilters=points>50",
+        "url": "https://hn.algolia.com/api/v1/search_by_date",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "ai frontend"
+            },
+            {
+              "name": "tags",
+              "value": "story"
+            },
+            {
+              "name": "numericFilters",
+              "value": "=created_at_i>{{ Math.floor(Date.now() / 1000) - 604800 }}"
+            }
+          ]
+        },
         "options": {
           "allowUnauthorizedCerts": false
         }
@@ -101,7 +122,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        464,
+        672,
         96
       ],
       "id": "aa1d00b8-9896-4a61-849d-16366776ac01",
@@ -109,12 +130,12 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nlet allArticles = [];\n\n// THE \"ELITE\" TARGETS\nconst targets = ['claude', 'cursor', 'copilot', 'ollama', 'deepseek', 'agent'];\n\n// CLIENT REQUIREMENT: Improvement & Seriousness\nconst improvementSignals = ['improvement', 'faster', 'release', 'update', 'new feature', 'optimized', 'performance', 'benchmark', 'productivity'];\n\nconst rawResults = items[0].json.news_results || [];\n\nrawResults.forEach(article => {\n  let title = (article.title || \"\").toLowerCase();\n  let snippet = (article.snippet || \"\").toLowerCase();\n  \n  let sourceName = \"\";\n  if (typeof article.source === 'string') sourceName = article.source;\n  else if (article.source && article.source.name) sourceName = article.source.name;\n  \n  let content = title + \" \" + snippet;\n  let score = 0;\n\n  // 1. IMPROVEMENT FILTER (Mandatory weight)\n  improvementSignals.forEach(s => {\n    if (content.includes(s)) score += 12;\n  });\n\n  // 2. TOOL RELEVANCE\n  targets.forEach(t => {\n    if (content.includes(t)) score += 10;\n  });\n\n  // 3. SOURCE AUTHORITY\n  const authoritySources = ['techcrunch', 'wired', 'the verge', 'venturebeat', 'bloomberg', 'zdnet'];\n  if (authoritySources.some(s => sourceName.toLowerCase().includes(s))) score += 8;\n\n  // STRICT THRESHOLD: Must mention an improvement or a major tool\n  if (score > 18 && title.length > 35) {\n    allArticles.push({\n      title: article.title,\n      url: article.link,\n      source: sourceName,\n      date: article.date,\n      category: \"Frontend Evolution\",\n      score: score\n    });\n  }\n});\n\nreturn allArticles\n  .sort((a, b) => b.score - a.score)\n  .slice(0, 6)\n  .map((art, i) => ({ json: { id: i + 1, ...art } }));"
+        "jsCode": "const items = $input.all();\nlet allArticles = [];\n\nconst sevenDaysAgo = Math.floor(Date.now() / 1000) - 604800;\n\nconst targets = ['claude', 'cursor', 'copilot', 'ollama', 'deepseek', 'agent', 'windsurf', 'hugging face', 'openai', 'anthropic'];\nconst improvementSignals = ['improvement', 'faster', 'release', 'update', 'optimized', 'performance', 'benchmark', 'launch', 'new'];\n\nitems.forEach(item => {\n  const data = item.json;\n  \n  // 1. FRESHNESS CHECK\n  let timestamp = data.created_at_i || (data.date || data.pubDate ? Math.floor(new Date(data.date || data.pubDate).getTime() / 1000) : null);\n  \n  // Strict 7-day cutoff\n  if (!timestamp || timestamp < sevenDaysAgo) return;\n\n  // 2. CONTENT SCORING\n  let title = (data.title || data.story_title || \"\").toLowerCase();\n  let snippet = (data.snippet || data.contentSnippet || \"\").toLowerCase();\n  let content = title + \" \" + snippet;\n\n  // Kill the \"keyboard\" and \"humor\" noise\n  if (content.includes('keyboard') || content.includes('joke')) return;\n\n  let score = 0;\n  targets.forEach(t => { if (content.includes(t)) score += 10; });\n  improvementSignals.forEach(s => { if (content.includes(s)) score += 10; });\n\n  // 3. QUALITY GATE\n  if (score >= 10 && title.length > 20) {\n    allArticles.push({\n      title: data.title || data.story_title,\n      url: data.url || data.link || (data.objectID ? `https://news.ycombinator.com/item?id=${data.objectID}` : \"\"),\n      source: data.source?.name || data.source || (data.objectID ? \"Hacker News\" : \"Technical Pulse\"),\n      date: new Date(timestamp * 1000).toLocaleDateString(),\n      score: score\n    });\n  }\n});\n\nreturn allArticles\n  .sort((a, b) => b.score - a.score)\n  .slice(0, 6)\n  .map((art, i) => ({ json: { id: i + 1, ...art } }));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        672,
+        880,
         96
       ],
       "id": "4acc3567-390f-4b7b-8bfc-e434838eb49a",
@@ -200,7 +221,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        880,
+        1088,
         96
       ],
       "id": "bfc62ac6-e24a-4b7f-8719-2991e2de4cd1",
@@ -220,8 +241,8 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        128,
-        -112
+        48,
+        -144
       ],
       "id": "d3fd1f1a-2693-4d28-8fb3-b8a7cfa88710",
       "name": "RSS Read1"
@@ -234,11 +255,50 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        176,
-        32
+        64,
+        48
       ],
       "id": "4a0cd16e-82ed-4ee1-96f3-127937bd9f72",
       "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -256
+      ],
+      "id": "8d13979e-b3d7-41b6-9568-3fdb5389e4f1",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -96
+      ],
+      "id": "38db84d9-77de-42cc-b23c-8dfec7cf63a4",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        304,
+        48
+      ],
+      "id": "96513fa2-9679-4315-af3f-f1755d298162",
+      "name": "Limit2"
     }
   ],
   "pinData": {},
@@ -278,7 +338,7 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Limit",
             "type": "main",
             "index": 0
           }
@@ -338,9 +398,9 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Limit2",
             "type": "main",
-            "index": 2
+            "index": 0
           }
         ]
       ]
@@ -349,9 +409,42 @@
       "main": [
         [
           {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
             "node": "Merge",
             "type": "main",
             "index": 1
+          }
+        ]
+      ]
+    },
+    "Limit2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
           }
         ]
       ]
@@ -363,7 +456,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "ee863c2b-682d-4bdb-9986-2979ec42f974",
+  "versionId": "5331a092-66d1-4def-8bcd-e5bea5cd3e92",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
