@@ -130,13 +130,13 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nlet allArticles = [];\n\nconst sevenDaysAgo = Math.floor(Date.now() / 1000) - 604800;\n\nconst targets = ['claude', 'cursor', 'copilot', 'ollama', 'deepseek', 'agent', 'windsurf', 'hugging face', 'openai', 'anthropic'];\nconst improvementSignals = ['improvement', 'faster', 'release', 'update', 'optimized', 'performance', 'benchmark', 'launch', 'new'];\n\nitems.forEach(item => {\n  const data = item.json;\n  \n  // 1. FRESHNESS CHECK\n  let timestamp = data.created_at_i || (data.date || data.pubDate ? Math.floor(new Date(data.date || data.pubDate).getTime() / 1000) : null);\n  \n  // Strict 7-day cutoff\n  if (!timestamp || timestamp < sevenDaysAgo) return;\n\n  // 2. CONTENT SCORING\n  let title = (data.title || data.story_title || \"\").toLowerCase();\n  let snippet = (data.snippet || data.contentSnippet || \"\").toLowerCase();\n  let content = title + \" \" + snippet;\n\n  // Kill the \"keyboard\" and \"humor\" noise\n  if (content.includes('keyboard') || content.includes('joke')) return;\n\n  let score = 0;\n  targets.forEach(t => { if (content.includes(t)) score += 10; });\n  improvementSignals.forEach(s => { if (content.includes(s)) score += 10; });\n\n  // 3. QUALITY GATE\n  if (score >= 10 && title.length > 20) {\n    allArticles.push({\n      title: data.title || data.story_title,\n      url: data.url || data.link || (data.objectID ? `https://news.ycombinator.com/item?id=${data.objectID}` : \"\"),\n      source: data.source?.name || data.source || (data.objectID ? \"Hacker News\" : \"Technical Pulse\"),\n      date: new Date(timestamp * 1000).toLocaleDateString(),\n      score: score\n    });\n  }\n});\n\nreturn allArticles\n  .sort((a, b) => b.score - a.score)\n  .slice(0, 6)\n  .map((art, i) => ({ json: { id: i + 1, ...art } }));"
+        "jsCode": "// 1. EXTRACT ALL ARTICLES FROM NESTED ARRAYS\nlet flatData = [];\nconst items = $input.all();\n\nitems.forEach(item => {\n  const data = item.json;\n  // Unpack Hacker News (hits) or SerpApi (news_results)\n  if (data.hits && Array.isArray(data.hits)) flatData.push(...data.hits); \n  else if (data.news_results && Array.isArray(data.news_results)) flatData.push(...data.news_results); \n  else flatData.push(data); \n});\n\n// 2. CREATE A UNIQUE LIST BY URL\nconst uniqueList = Array.from(new Map(flatData.map(item => [item.url || item.link, item])).values());\n\n// 3. GENERATE PROMPTS FOR OLLAMA\n// We return an array of objects so the next node (Ollama) runs for EACH article\nreturn uniqueList.map(article => {\n  const title = article.title || article.story_title || \"Untitled\";\n  const snippet = article.snippet || article.story_text || article.contentSnippet || \"No snippet available\";\n  \n  const ollamaPrompt = `\nYou are a senior technical editor for an elite Frontend Engineering newsletter. \nGrade this news item from 1 to 100 based on its importance to Senior Frontend Engineers and AI developers.\n\nCRITERIA:\n- 90-100: Major industry shifts or research (e.g., Hugging Face Spring Report, Claude 3.7 Release).\n- 70-89: High-signal technical deep dives, new SDKs, or architecture patterns.\n- 40-69: Minor tool updates or general technical news.\n- 0-39: Personal projects (\"Show HN\"), vague blogs, keyboards, or non-technical fluff.\n\nARTICLE TITLE: ${title}\nSNIPPET: ${snippet}\n\nINSTRUCTION: Respond with ONLY a single number. No text.\n  `;\n\n  return {\n    json: {\n      title: title,\n      url: article.url || article.link,\n      source: article.source?.name || article.source || \"Industry Source\",\n      prompt: ollamaPrompt\n    }\n  };\n});"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        880,
-        96
+        1280,
+        -16
       ],
       "id": "4acc3567-390f-4b7b-8bfc-e434838eb49a",
       "name": "Code in JavaScript"
@@ -221,8 +221,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1088,
-        96
+        1696,
+        256
       ],
       "id": "bfc62ac6-e24a-4b7f-8719-2991e2de4cd1",
       "name": "Insert rows in a table",
@@ -299,6 +299,61 @@
       ],
       "id": "96513fa2-9679-4315-af3f-f1755d298162",
       "name": "Limit2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        880,
+        96
+      ],
+      "id": "7d940ba1-91d0-4e94-8bf3-af661f2baa3a",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        304
+      ],
+      "id": "d7fd7a0e-7e2a-43da-8de6-8ac9908d26e2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// 1. Get ALL articles from the previous data preparation node\n// Replace \"Code in JavaScript\" with the exact name of the node that created the prompt\nconst allOriginalArticles = $(\"Code in JavaScript\").all();\n\nreturn items.map((item, index) => {\n  // 2. Extract the score from Ollama's response\n  const ollamaResponse = item.json.response || \"0\";\n  const numericScore = parseInt(ollamaResponse.trim().replace(/[^0-9]/g, ''), 10) || 0;\n\n  // 3. Match by index\n  // item[0] of this batch matches article[0] of the previous node, etc.\n  const originalArticle = allOriginalArticles[index].json;\n\n  return {\n    json: {\n      title: originalArticle.title,\n      url: originalArticle.url,\n      source: originalArticle.source || \"Industry Intelligence\",\n      score: numericScore,\n      // Ensure date is in a format Postgres likes (ISO)\n      date: originalArticle.date ? new Date(originalArticle.date).toISOString() : new Date().toISOString()\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        -16
+      ],
+      "id": "d10a3f59-78e8-451f-9cb8-6bd98a3792c6",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2:3b\",\n  \"prompt\": {{ JSON.stringify($json.prompt) }},\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1488,
+        -16
+      ],
+      "id": "e7682c29-95f7-404d-bbb1-4c95e95c631e",
+      "name": "Prepare for Ollama"
     }
   ],
   "pinData": {},
@@ -371,7 +426,7 @@
       "main": [
         [
           {
-            "node": "Code in JavaScript",
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -382,7 +437,7 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table",
+            "node": "Prepare for Ollama",
             "type": "main",
             "index": 0
           }
@@ -448,6 +503,57 @@
           }
         ]
       ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare for Ollama": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -456,7 +562,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "5331a092-66d1-4def-8bcd-e5bea5cd3e92",
+  "versionId": "42237710-3b7b-48a4-8788-8308a6b6768f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
