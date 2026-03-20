@@ -116,7 +116,7 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "numberInputs": 5,
+        "numberInputs": 8,
         "options": {}
       },
       "type": "n8n-nodes-base.merge",
@@ -130,7 +130,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// 1. EXTRACT ALL ARTICLES FROM NESTED ARRAYS\nlet flatData = [];\nconst items = $input.all();\n\nitems.forEach(item => {\n  const data = item.json;\n  // Unpack Hacker News (hits) or SerpApi (news_results)\n  if (data.hits && Array.isArray(data.hits)) flatData.push(...data.hits); \n  else if (data.news_results && Array.isArray(data.news_results)) flatData.push(...data.news_results); \n  else flatData.push(data); \n});\n\n// 2. CREATE A UNIQUE LIST BY URL\nconst uniqueList = Array.from(new Map(flatData.map(item => [item.url || item.link, item])).values());\n\n// 3. GENERATE PROMPTS FOR OLLAMA\n// We return an array of objects so the next node (Ollama) runs for EACH article\nreturn uniqueList.map(article => {\n  const title = article.title || article.story_title || \"Untitled\";\n  const snippet = article.snippet || article.story_text || article.contentSnippet || \"No snippet available\";\n  \n  const ollamaPrompt = `\nYou are a senior technical editor for an elite Frontend Engineering newsletter. \nGrade this news item from 1 to 100 based on its importance to Senior Frontend Engineers and AI developers.\n\nCRITERIA:\n- 90-100: Major industry shifts or research (e.g., Hugging Face Spring Report, Claude 3.7 Release).\n- 70-89: High-signal technical deep dives, new SDKs, or architecture patterns.\n- 40-69: Minor tool updates or general technical news.\n- 0-39: Personal projects (\"Show HN\"), vague blogs, keyboards, or non-technical fluff.\n\nARTICLE TITLE: ${title}\nSNIPPET: ${snippet}\n\nINSTRUCTION: Respond with ONLY a single number. No text.\n  `;\n\n  return {\n    json: {\n      title: title,\n      url: article.url || article.link,\n      source: article.source?.name || article.source || \"Industry Source\",\n      prompt: ollamaPrompt\n    }\n  };\n});"
+        "jsCode": "// 1. EXTRACT ALL ARTICLES FROM NESTED ARRAYS\nlet flatData = [];\nconst items = $input.all();\n\nitems.forEach(item => {\n  const data = item.json;\n\n  if (data.hits && Array.isArray(data.hits)) {\n    flatData.push(...data.hits);\n  } \n  else if (data.news_results && Array.isArray(data.news_results)) {\n    flatData.push(...data.news_results);\n  } \n  else if (data.tweets && Array.isArray(data.tweets)) {\n    flatData.push(...data.tweets);\n  } \n  else {\n    flatData.push(data);\n  }\n});\n\n// 2. UNIQUE LIST\nconst uniqueList = Array.from(\n  new Map(\n    flatData.map(item => [\n      item.url || item.link || item.twitter_url || item.status_link,\n      item\n    ])\n  ).values()\n);\n\n// 3. GENERATE PROMPTS + FRESHNESS\nreturn uniqueList\n  .map(article => {\n\n    const title =\n      article.title ||\n      article.text ||\n      article.story_title ||\n      \"Untitled\";\n\n    const snippet =\n      article.snippet ||\n      article.text ||\n      article.story_text ||\n      article.contentSnippet ||\n      \"No snippet available\";\n\n    if (!title || title.length < 20) return null;\n\n    // 🔥 FRESHNESS BOOST\n    const now = Date.now();\n    const articleDate = new Date(\n      article.date ||\n      article.publishedAt ||\n      article.created_at ||\n      now\n    ).getTime();\n\n    const ageHours = (now - articleDate) / (1000 * 60 * 60);\n\n    let freshnessBoost = 0;\n    if (ageHours < 24) freshnessBoost = 10;\n    else if (ageHours < 72) freshnessBoost = 5;\n\n    const ollamaPrompt = `\nYou are a senior AI developer newsletter curator.\n\nEvaluate this content for:\n- Real-world developer usage\n- Productivity improvement\n- Emerging tools or trends\n- Signal vs noise\n\nGive HIGH scores if:\n- Copilot / Claude / Cursor workflows\n- Automation or dev acceleration\n- Real developer impact\n\nGive LOW scores if:\n- Generic blogs\n- Marketing fluff\n\nReject content that is:\n- motivational\n- opinion-only\n- not showing real implementation, workflow, or technical insight\n\nTITLE: ${title}\nSNIPPET: ${snippet}\n\nRespond ONLY with a number from 0 to 100.\n`;\n\n    return {\n      json: {\n        title: title,\n        url:\n          article.url ||\n          article.link ||\n          article.twitter_url ||\n          article.status_link,\n\n        source:\n          article.source?.name ||\n          article.source ||\n          article.user?.name ||\n          \"Industry Source\",\n\n        prompt: ollamaPrompt,\n\n        // ✅ ADD THIS\n        freshnessBoost: freshnessBoost,\n\n        // ✅ ALSO PASS DATE FOR DB (important)\n        date: article.date || article.publishedAt || article.created_at || null\n      }\n    };\n  })\n  .filter(Boolean);"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -326,7 +326,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\n// 1. Get ALL articles from the previous data preparation node\n// Replace \"Code in JavaScript\" with the exact name of the node that created the prompt\nconst allOriginalArticles = $(\"Code in JavaScript\").all();\n\nreturn items.map((item, index) => {\n  // 2. Extract the score from Ollama's response\n  const ollamaResponse = item.json.response || \"0\";\n  const numericScore = parseInt(ollamaResponse.trim().replace(/[^0-9]/g, ''), 10) || 0;\n\n  // 3. Match by index\n  // item[0] of this batch matches article[0] of the previous node, etc.\n  const originalArticle = allOriginalArticles[index].json;\n\n  return {\n    json: {\n      title: originalArticle.title,\n      url: originalArticle.url,\n      source: originalArticle.source || \"Industry Intelligence\",\n      score: numericScore,\n      // Ensure date is in a format Postgres likes (ISO)\n      date: originalArticle.date ? new Date(originalArticle.date).toISOString() : new Date().toISOString()\n    }\n  };\n});"
+        "jsCode": "const items = $input.all();\n\n// 👇 this must match EXACT node name\nconst allOriginalArticles = $(\"Code in JavaScript\").all();\n\nreturn items.map((item, index) => {\n  // 1. Extract score\n  const ollamaResponse = item.json.response || \"0\";\n  const numericScore =\n    parseInt(ollamaResponse.trim().replace(/[^0-9]/g, ''), 10) || 0;\n\n  // 2. Get original article\n  const originalArticle = allOriginalArticles[index].json;\n\n  // 🔥 TWITTER PENALTY\n  let penalty = 0;\n  if (\n    originalArticle.url &&\n    originalArticle.url.includes(\"twitter.com\")\n  ) {\n    penalty = 10;\n  }\n\n  // 🔥 FINAL SCORE\n  const finalScore =\n    numericScore +\n    (originalArticle.freshnessBoost || 0) -\n    penalty;\n\n  return {\n    json: {\n      title: originalArticle.title,\n      url: originalArticle.url,\n      source: originalArticle.source || \"Industry Intelligence\",\n\n      // ✅ FINAL SCORE\n      score: finalScore,\n\n      // 🧠 DEBUG (optional but VERY useful)\n      baseScore: numericScore,\n      freshnessBoost: originalArticle.freshnessBoost || 0,\n      penaltyApplied: penalty,\n\n      // DB safe date\n      date: originalArticle.date\n        ? new Date(originalArticle.date).toISOString()\n        : new Date().toISOString()\n    }\n  };\n});"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -354,6 +354,134 @@
       ],
       "id": "e7682c29-95f7-404d-bbb1-4c95e95c631e",
       "name": "Prepare for Ollama"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "serpApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "site:twitter.com  (\"I built\" OR \"we built\" OR \"workflow\" OR \"using Claude\" OR \"using Copilot\" OR \"AI agent\") (\"Claude\" OR \"Copilot\" OR \"Cursor\") after:2026-03-15"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        192,
+        544
+      ],
+      "id": "cf49d8b7-0627-4229-846d-5fe833c682f3",
+      "name": "Twitter - Tools",
+      "credentials": {
+        "serpApi": {
+          "id": "CqiRReBZKP1DhDIH",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "serpApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "site:twitter.com (\"Claude\" OR \"Copilot\" OR \"Cursor\") (\"workflow\" OR \"AI agent\" OR \"automation\") after:2026-03-17"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        144,
+        704
+      ],
+      "id": "6f101daa-0a01-484e-b261-ef438c480f54",
+      "name": "Twitter - Workflow",
+      "credentials": {
+        "serpApi": {
+          "id": "CqiRReBZKP1DhDIH",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "serpApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "site:twitter.com (\"AI agent\" OR \"agent workflow\" OR \"automation agent\" OR \"LLM agent\") (\"Claude\" OR \"Copilot\" OR \"Cursor\") after:2026-03-17"
+            },
+            {
+              "name": "tbs",
+              "value": "qdr:w"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        160,
+        880
+      ],
+      "id": "85dc3273-3f2c-4552-b165-56fff58c30a7",
+      "name": "Twitter - Agent",
+      "credentials": {
+        "serpApi": {
+          "id": "CqiRReBZKP1DhDIH",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items\n  .sort((a, b) => b.json.score - a.json.score)\n  .slice(0, 10);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        -16
+      ],
+      "id": "7981ccdc-ae5a-4294-b92f-57aa88ea15fc",
+      "name": "Code in JavaScript2"
     }
   ],
   "pinData": {},
@@ -383,6 +511,21 @@
           },
           {
             "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Twitter - Tools",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Twitter - Workflow",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Twitter - Agent",
             "type": "main",
             "index": 0
           }
@@ -537,7 +680,7 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table",
+            "node": "Code in JavaScript2",
             "type": "main",
             "index": 0
           }
@@ -554,6 +697,50 @@
           }
         ]
       ]
+    },
+    "Twitter - Tools": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Twitter - Workflow": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Twitter - Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -562,7 +749,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "42237710-3b7b-48a4-8788-8308a6b6768f",
+  "versionId": "114876a4-51e9-4718-abc4-2df2038998d1",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
