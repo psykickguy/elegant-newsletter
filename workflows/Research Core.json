@@ -130,7 +130,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// 1. EXTRACT ALL ARTICLES FROM NESTED ARRAYS\nlet flatData = [];\nconst items = $input.all();\n\nitems.forEach(item => {\n  const data = item.json;\n\n  if (data.hits && Array.isArray(data.hits)) {\n    flatData.push(...data.hits);\n  } \n  else if (data.news_results && Array.isArray(data.news_results)) {\n    flatData.push(...data.news_results);\n  } \n  else if (data.tweets && Array.isArray(data.tweets)) {\n    flatData.push(...data.tweets);\n  } \n  else {\n    flatData.push(data);\n  }\n});\n\n// 2. UNIQUE LIST\nconst uniqueList = Array.from(\n  new Map(\n    flatData.map(item => [\n      item.url || item.link || item.twitter_url || item.status_link,\n      item\n    ])\n  ).values()\n);\n\n// 3. GENERATE PROMPTS + FRESHNESS\nreturn uniqueList\n  .map(article => {\n\n    const title =\n      article.title ||\n      article.text ||\n      article.story_title ||\n      \"Untitled\";\n\n    const snippet =\n      article.snippet ||\n      article.text ||\n      article.story_text ||\n      article.contentSnippet ||\n      \"No snippet available\";\n\n    if (!title || title.length < 20) return null;\n\n    // 🔥 FRESHNESS BOOST\n    const now = Date.now();\n    const articleDate = new Date(\n      article.date ||\n      article.publishedAt ||\n      article.created_at ||\n      now\n    ).getTime();\n\n    const ageHours = (now - articleDate) / (1000 * 60 * 60);\n\n    let freshnessBoost = 0;\n    if (ageHours < 24) freshnessBoost = 10;\n    else if (ageHours < 72) freshnessBoost = 5;\n\n    const ollamaPrompt = `\nYou are a senior AI developer newsletter curator.\n\nEvaluate this content for:\n- Real-world developer usage\n- Productivity improvement\n- Emerging tools or trends\n- Signal vs noise\n\nGive HIGH scores if:\n- Copilot / Claude / Cursor workflows\n- Automation or dev acceleration\n- Real developer impact\n\nGive LOW scores if:\n- Generic blogs\n- Marketing fluff\n\nReject content that is:\n- motivational\n- opinion-only\n- not showing real implementation, workflow, or technical insight\n\nTITLE: ${title}\nSNIPPET: ${snippet}\n\nRespond ONLY with a number from 0 to 100.\n`;\n\n    return {\n      json: {\n        title: title,\n        url:\n          article.url ||\n          article.link ||\n          article.twitter_url ||\n          article.status_link,\n\n        source:\n          article.source?.name ||\n          article.source ||\n          article.user?.name ||\n          \"Industry Source\",\n\n        prompt: ollamaPrompt,\n\n        // ✅ ADD THIS\n        freshnessBoost: freshnessBoost,\n\n        // ✅ ALSO PASS DATE FOR DB (important)\n        date: article.date || article.publishedAt || article.created_at || null\n      }\n    };\n  })\n  .filter(Boolean);"
+        "jsCode": "// 🔥 HELPERS (TOP - CORRECT)\nconst getBestUrl = (article) => {\n  return (\n    article.status_link ||\n    article.twitter_url ||\n    article.link ||\n    article.url ||\n    article.source_url ||\n    null\n  );\n};\n\nconst getLinkLabel = (url) => {\n  if (!url) return \"Read More\";\n  if (url.includes(\"github.com\")) return \"View GitHub Repo\";\n  if (url.includes(\"twitter.com\")) return \"View Discussion\";\n  if (url.includes(\"youtube.com\")) return \"Watch Demo\";\n  return \"Read Full Breakdown\";\n};\n\n\n// 1. EXTRACT ALL ARTICLES\nlet flatData = [];\nconst items = $input.all();\n\nitems.forEach(item => {\n  const data = item.json;\n\n  if (data.hits && Array.isArray(data.hits)) {\n    flatData.push(...data.hits);\n  } \n  else if (data.news_results && Array.isArray(data.news_results)) {\n    flatData.push(...data.news_results);\n  } \n  else if (data.tweets && Array.isArray(data.tweets)) {\n    flatData.push(...data.tweets);\n  } \n  else {\n    flatData.push(data);\n  }\n});\n\n\n// 2. UNIQUE LIST\nconst uniqueList = Array.from(\n  new Map(\n    flatData.map(item => [\n      item.url || item.link || item.twitter_url || item.status_link,\n      item\n    ])\n  ).values()\n);\n\n\n// 3. GENERATE PROMPTS + FIXED URL LOGIC\nreturn uniqueList\n  .map(article => {\n\n    const title =\n      article.title ||\n      article.text ||\n      article.story_title ||\n      \"Untitled\";\n\n    const snippet =\n      article.snippet ||\n      article.text ||\n      article.story_text ||\n      article.contentSnippet ||\n      \"No snippet available\";\n\n    if (!title || title.length < 20) return null;\n\n    // ✅ FIXED URL LOGIC (INSIDE MAP)\n    const url = getBestUrl(article);\n\n    // ❌ FILTER BAD LINKS\n    if (!url || url.includes(\"search\") || url.includes(\"google.com\")) {\n      return null;\n    }\n\n    // 🔥 FRESHNESS BOOST\n    const now = Date.now();\n    const articleDate = new Date(\n      article.date ||\n      article.publishedAt ||\n      article.created_at ||\n      now\n    ).getTime();\n\n    const ageHours = (now - articleDate) / (1000 * 60 * 60);\n\n    let freshnessBoost = 0;\n    if (ageHours < 24) freshnessBoost = 10;\n    else if (ageHours < 72) freshnessBoost = 5;\n\n    const ollamaPrompt = `\nYou are a senior AI developer newsletter curator.\n\nEvaluate this content for:\n- Real-world developer usage\n- Productivity improvement\n- Emerging tools or trends\n- Signal vs noise\n\nGive HIGH scores if:\n- Copilot / Claude / Cursor workflows\n- Automation or dev acceleration\n- Real developer impact\n\nGive LOW scores if:\n- Generic blogs\n- Marketing fluff\n\nReject content that is:\n- motivational\n- opinion-only\n- not showing real implementation, workflow, or technical insight\n\nTITLE: ${title}\nSNIPPET: ${snippet}\n\nRespond ONLY with a number from 0 to 100.\n`;\n\n    return {\n      json: {\n        title: title,\n        url: url,\n\n        linkLabel: getLinkLabel(url), // 🔥 NOW WORKS CORRECTLY\n\n        source:\n          article.source?.name ||\n          article.source ||\n          article.user?.name ||\n          \"Industry Source\",\n\n        prompt: ollamaPrompt,\n        freshnessBoost: freshnessBoost,\n        date: article.date || article.publishedAt || article.created_at || null\n      }\n    };\n  })\n  .filter(Boolean);"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -159,7 +159,8 @@
           "value": {
             "title": "={{ $json.title }}",
             "url": "={{ $json.url }}",
-            "source": "={{ $json.source }}"
+            "source": "={{ $json.source }}",
+            "link_label": "={{ $json.linkLabel }}"
           },
           "matchingColumns": [
             "id"
@@ -211,6 +212,16 @@
               "type": "dateTime",
               "canBeUsedToMatch": true,
               "removed": true
+            },
+            {
+              "id": "link_label",
+              "displayName": "link_label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -307,8 +318,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        880,
-        96
+        928,
+        224
       ],
       "id": "7d940ba1-91d0-4e94-8bf3-af661f2baa3a",
       "name": "Loop Over Items"
@@ -319,14 +330,14 @@
       "name": "Replace Me",
       "typeVersion": 1,
       "position": [
-        1088,
-        304
+        1232,
+        288
       ],
       "id": "d7fd7a0e-7e2a-43da-8de6-8ac9908d26e2"
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\n// 👇 this must match EXACT node name\nconst allOriginalArticles = $(\"Code in JavaScript\").all();\n\nreturn items.map((item, index) => {\n  // 1. Extract score\n  const ollamaResponse = item.json.response || \"0\";\n  const numericScore =\n    parseInt(ollamaResponse.trim().replace(/[^0-9]/g, ''), 10) || 0;\n\n  // 2. Get original article\n  const originalArticle = allOriginalArticles[index].json;\n\n  // 🔥 TWITTER PENALTY\n  let penalty = 0;\n  if (\n    originalArticle.url &&\n    originalArticle.url.includes(\"twitter.com\")\n  ) {\n    penalty = 10;\n  }\n\n  // 🔥 FINAL SCORE\n  const finalScore =\n    numericScore +\n    (originalArticle.freshnessBoost || 0) -\n    penalty;\n\n  return {\n    json: {\n      title: originalArticle.title,\n      url: originalArticle.url,\n      source: originalArticle.source || \"Industry Intelligence\",\n\n      // ✅ FINAL SCORE\n      score: finalScore,\n\n      // 🧠 DEBUG (optional but VERY useful)\n      baseScore: numericScore,\n      freshnessBoost: originalArticle.freshnessBoost || 0,\n      penaltyApplied: penalty,\n\n      // DB safe date\n      date: originalArticle.date\n        ? new Date(originalArticle.date).toISOString()\n        : new Date().toISOString()\n    }\n  };\n});"
+        "jsCode": "const items = $input.all();\n\n// 👇 this must match EXACT node name\nconst allOriginalArticles = $(\"Code in JavaScript\").all();\n\nreturn items.map((item, index) => {\n  // 1. Extract score\n  const ollamaResponse = item.json.response || \"0\";\n  const numericScore =\n    parseInt(ollamaResponse.trim().replace(/[^0-9]/g, ''), 10) || 0;\n\n  // 2. Get original article\n  const originalArticle = allOriginalArticles[index].json;\n\n  // 🔥 TWITTER PENALTY\n  let penalty = 0;\n  if (\n    originalArticle.url &&\n    originalArticle.url.includes(\"twitter.com\")\n  ) {\n    penalty = 10;\n  }\n\n  // 🔥 FINAL SCORE\n  const finalScore =\n    numericScore +\n    (originalArticle.freshnessBoost || 0) -\n    penalty;\n\n  return {\n    json: {\n      title: originalArticle.title,\n      url: originalArticle.url,\n      linkLabel: originalArticle.linkLabel,\n      source: originalArticle.source || \"Industry Intelligence\",\n\n      // ✅ FINAL SCORE\n      score: finalScore,\n\n      // 🧠 DEBUG (optional but VERY useful)\n      baseScore: numericScore,\n      freshnessBoost: originalArticle.freshnessBoost || 0,\n      penaltyApplied: penalty,\n\n      // DB safe date\n      date: originalArticle.date\n        ? new Date(originalArticle.date).toISOString()\n        : new Date().toISOString()\n    }\n  };\n});"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -749,7 +760,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "114876a4-51e9-4718-abc4-2df2038998d1",
+  "versionId": "c7935883-49e8-4ede-825d-e6f6033a6b46",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
