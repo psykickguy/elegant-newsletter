@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// 🔥 HELPERS\nconst getBestUrl = (article) => {\n  return (\n    article.html_url ||\n    article.url ||\n    article.link ||\n    article.status_link ||\n    article.twitter_url ||\n    article.source_url ||\n    null\n  );\n};\n\nconst getLinkLabel = (url) => {\n  if (!url) return \"Read More\";\n\n  if (url.includes(\"github.com\")) return \"View GitHub Repo\";\n  if (url.includes(\"/releases\")) return \"View Release Notes\";\n  if (url.includes(\"youtube.com\")) return \"Watch Demo\";\n  if (url.includes(\"docs.\")) return \"Read Documentation\";\n  if (url.includes(\"blog\")) return \"Read Engineering Breakdown\";\n  if (url.includes(\"twitter.com\") || url.includes(\"x.com\")) return \"View Discussion\";\n  if (url.includes(\"vercel.com\")) return \"Read Product Update\";\n  if (url.includes(\"cloudflare.com\")) return \"Read Technical Breakdown\";\n\n  return \"Read Full Breakdown\";\n};\n\n// 1. EXTRACT ALL ARTICLES\nlet flatData = [];\nconst items = $input.all();\n\nitems.forEach(item => {\n  const data = item.json;\n\n  if (data.hits && Array.isArray(data.hits)) {\n    flatData.push(...data.hits);\n  } \n  else if (data.news_results && Array.isArray(data.news_results)) {\n    flatData.push(...data.news_results);\n  } \n  else if (data.tweets && Array.isArray(data.tweets)) {\n    flatData.push(...data.tweets);\n  }\n  else if (data.items && Array.isArray(data.items)) {\n    flatData.push(...data.items);\n  }\n  else if (Array.isArray(data)) {\n    flatData.push(...data);\n  }\n  else {\n    flatData.push(data);\n  }\n});\n\n// 2. UNIQUE LIST\nconst uniqueList = Array.from(\n  new Map(\n    flatData.map(item => [\n      item.html_url ||\n      item.url ||\n      item.link ||\n      item.twitter_url ||\n      item.status_link,\n      item\n    ])\n  ).values()\n);\n\n// 3. GENERATE PROMPTS + FIXED URL LOGIC\nreturn uniqueList\n  .map(article => {\n\n    const title =\n      article.title ||\n      article.name ||\n      article.text ||\n      article.story_title ||\n      \"Untitled\";\n\n    const snippet =\n      article.snippet ||\n      article.description ||\n      article.body ||\n      article.text ||\n      article.story_text ||\n      article.contentSnippet ||\n      \"No snippet available\";\n\n    if (!title || title.length < 20) return null;\n\n    // ✅ FIXED URL LOGIC\n    const url = getBestUrl(article);\n\n    // ❌ FILTER BAD LINKS\n    if (!url || url.includes(\"search\") || url.includes(\"google.com\")) {\n      return null;\n    }\n\n    // 🔥 FRESHNESS BOOST\n    const now = Date.now();\n    const articleDate = new Date(\n      article.date ||\n      article.publishedAt ||\n      article.created_at ||\n      article.pubDate ||\n      now\n    ).getTime();\n\n    const ageHours = (now - articleDate) / (1000 * 60 * 60);\n\n    let freshnessBoost = 0;\n    if (ageHours < 24) freshnessBoost = 10;\n    else if (ageHours < 72) freshnessBoost = 5;\n\n    const ollamaPrompt = `\nYou are a senior AI developer newsletter curator.\n\nEvaluate this content for:\n- Real-world developer usage\n- Productivity improvement\n- Emerging tools or trends\n- Signal vs noise\n\nGive HIGH scores if:\n- Copilot / Claude / Cursor workflows\n- Automation or dev acceleration\n- Real developer impact\n- Framework releases\n- GitHub launches\n- Engineering blogs\n- Technical implementation details\n- Performance improvements\n- Architecture changes\n\nGive LOW scores if:\n- Generic blogs\n- Marketing fluff\n- Opinion-only content\n- Startup motivational posts\n- Generic AI listicles\n\nReject content that is:\n- motivational\n- opinion-only\n- not showing real implementation, workflow, or technical insight\n\nTITLE: ${title}\nSNIPPET: ${snippet}\n\nRespond ONLY with a number from 0 to 100.\n`;\n\n    return {\n      json: {\n        title: title,\n        url: url,\n\n        linkLabel: getLinkLabel(url),\n\n        source:\n          article.source?.name ||\n          article.source ||\n          article.user?.name ||\n          article.author ||\n          \"Industry Source\",\n\n        prompt: ollamaPrompt,\n        freshnessBoost: freshnessBoost,\n        date:\n          article.date ||\n          article.publishedAt ||\n          article.created_at ||\n          article.pubDate ||\n          null,\n\n        domain: (() => {\n          try {\n            return new URL(url).hostname.replace(\"www.\", \"\");\n          } catch {\n            return null;\n          }\n        })(),\n\n        sourceType: (() => {\n          if (url.includes(\"github.com\")) return \"github\";\n          if (url.includes(\"react.dev\")) return \"framework_release\";\n          if (url.includes(\"nextjs.org\")) return \"framework_release\";\n          if (url.includes(\"tailwindcss.com\")) return \"framework_release\";\n          if (url.includes(\"vite.dev\")) return \"framework_release\";\n          if (url.includes(\"cloudflare.com\")) return \"engineering_blog\";\n          if (url.includes(\"vercel.com\")) return \"engineering_blog\";\n          if (url.includes(\"builder.io\")) return \"engineering_blog\";\n          if (url.includes(\"twitter.com\") || url.includes(\"x.com\")) return \"social\";\n          return \"general\";\n        })(),\n\n        category: article.category || null\n      }\n    };\n  })\n  .filter(Boolean);"
+        "jsCode": "const getBestUrl = (article) => {\n  return (\n    article.html_url ||\n    article.url ||\n    article.link ||\n    article.status_link ||\n    article.twitter_url ||\n    article.source_url ||\n    null\n  );\n};\n\nconst getLinkLabel = (url) => {\n  if (!url) return \"Read More\";\n\n  if (url.includes(\"github.com\")) return \"View GitHub Repo\";\n  if (url.includes(\"/releases\")) return \"View Release Notes\";\n  if (url.includes(\"youtube.com\")) return \"Watch Demo\";\n  if (url.includes(\"docs.\")) return \"Read Documentation\";\n  if (url.includes(\"blog\")) return \"Read Engineering Breakdown\";\n  if (url.includes(\"twitter.com\") || url.includes(\"x.com\")) return \"View Discussion\";\n  if (url.includes(\"vercel.com\")) return \"Read Product Update\";\n  if (url.includes(\"cloudflare.com\")) return \"Read Technical Breakdown\";\n\n  return \"Read Full Breakdown\";\n};\n\n// 1. EXTRACT ALL ARTICLES\nlet flatData = [];\nconst items = $input.all();\n\nitems.forEach(item => {\n  const data = item.json;\n\n  if (data.hits && Array.isArray(data.hits)) {\n    flatData.push(...data.hits);\n  } \n  else if (data.news_results && Array.isArray(data.news_results)) {\n    flatData.push(...data.news_results);\n  } \n  else if (data.tweets && Array.isArray(data.tweets)) {\n    flatData.push(...data.tweets);\n  }\n  else if (data.items && Array.isArray(data.items)) {\n    flatData.push(...data.items);\n  }\n  else if (Array.isArray(data)) {\n    flatData.push(...data);\n  }\n  else {\n    flatData.push(data);\n  }\n});\n\n// 2. UNIQUE LIST\nconst uniqueList = Array.from(\n  new Map(\n    flatData.map(item => [\n      item.html_url ||\n      item.url ||\n      item.link ||\n      item.twitter_url ||\n      item.status_link,\n      item\n    ])\n  ).values()\n);\n\n// 3. GENERATE PROMPTS + FIXED URL LOGIC\nreturn uniqueList\n  .map(article => {\n\n    const title =\n      article.title ||\n      article.name ||\n      article.text ||\n      article.story_title ||\n      \"Untitled\";\n\n    const snippet =\n      article.snippet ||\n      article.description ||\n      article.body ||\n      article.text ||\n      article.story_text ||\n      article.contentSnippet ||\n      \"No snippet available\";\n\n    if (!title || title.length < 20) return null;\n\n    const url = getBestUrl(article);\n\n    if (!url || url.includes(\"search\") || url.includes(\"google.com\")) {\n      return null;\n    }\n\n    const now = Date.now();\n    const articleDate = new Date(\n      article.date ||\n      article.publishedAt ||\n      article.created_at ||\n      article.pubDate ||\n      now\n    ).getTime();\n\n    const ageHours = (now - articleDate) / (1000 * 60 * 60);\n\n    let freshnessBoost = 0;\n    if (ageHours < 24) freshnessBoost = 10;\n    else if (ageHours < 72) freshnessBoost = 5;\n\n    const ollamaPrompt = `\nYou are a senior AI developer newsletter curator.\n\nEvaluate this content for:\n- Real-world developer usage\n- Productivity improvement\n- Emerging tools or trends\n- Signal vs noise\n\nGive HIGH scores if:\n- Copilot / Claude / Cursor workflows\n- Automation or dev acceleration\n- Real developer impact\n- Framework releases\n- GitHub launches\n- Engineering blogs\n- Technical implementation details\n- Performance improvements\n- Architecture changes\n\nGive LOW scores if:\n- Generic blogs\n- Marketing fluff\n- Opinion-only content\n- Startup motivational posts\n- Generic AI listicles\n\nReject content that is:\n- motivational\n- opinion-only\n- not showing real implementation, workflow, or technical insight\n\nTITLE: ${title}\nSNIPPET: ${snippet}\n\nRespond ONLY with a number from 0 to 100.\n`;\n\n    return {\n      json: {\n        title: title,\n        url: url,\n\n        linkLabel: getLinkLabel(url),\n\n        source:\n          article.source?.name ||\n          article.source ||\n          article.user?.name ||\n          article.author ||\n          \"Industry Source\",\n\n        prompt: ollamaPrompt,\n\n        freshnessBoost: freshnessBoost,\n\n        date:\n          article.date ||\n          article.publishedAt ||\n          article.created_at ||\n          article.pubDate ||\n          null,\n\n        domain: (() => {\n          try {\n            return new URL(url).hostname.replace(\"www.\", \"\");\n          } catch {\n            return null;\n          }\n        })(),\n\n        sourceType: (() => {\n          if (url.includes(\"github.com\")) return \"github\";\n          if (url.includes(\"react.dev\")) return \"framework_release\";\n          if (url.includes(\"nextjs.org\")) return \"framework_release\";\n          if (url.includes(\"tailwindcss.com\")) return \"framework_release\";\n          if (url.includes(\"vite.dev\")) return \"framework_release\";\n          if (url.includes(\"cloudflare.com\")) return \"engineering_blog\";\n          if (url.includes(\"vercel.com\")) return \"engineering_blog\";\n          if (url.includes(\"builder.io\")) return \"engineering_blog\";\n          if (url.includes(\"twitter.com\") || url.includes(\"x.com\")) return \"social\";\n          return \"general\";\n        })(),\n\n        category: (() => {\n          const text = `${title} ${snippet}`.toLowerCase();\n\n          if (\n            text.includes(\"ai\") ||\n            text.includes(\"agent\") ||\n            text.includes(\"llm\") ||\n            text.includes(\"copilot\") ||\n            text.includes(\"claude\") ||\n            text.includes(\"cursor\")\n          ) {\n            return \"ai_tooling\";\n          }\n\n          if (\n            text.includes(\"security\") ||\n            text.includes(\"cve\") ||\n            text.includes(\"vulnerability\") ||\n            text.includes(\"exploit\")\n          ) {\n            return \"security\";\n          }\n\n          if (\n            text.includes(\"react\") ||\n            text.includes(\"next.js\") ||\n            text.includes(\"nextjs\") ||\n            text.includes(\"vite\") ||\n            text.includes(\"tailwind\") ||\n            text.includes(\"bun\") ||\n            text.includes(\"supabase\")\n          ) {\n            return \"framework_release\";\n          }\n\n          if (\n            text.includes(\"performance\") ||\n            text.includes(\"cache\") ||\n            text.includes(\"compiler\") ||\n            text.includes(\"rendering\") ||\n            text.includes(\"optimization\")\n          ) {\n            return \"performance\";\n          }\n\n          if (\n            text.includes(\"database\") ||\n            text.includes(\"postgres\") ||\n            text.includes(\"supabase\")\n          ) {\n            return \"database\";\n          }\n\n          return \"general\";\n        })(),\n\n        tags: (() => {\n          const tags = [];\n          const text = `${title} ${snippet}`.toLowerCase();\n\n          if (text.includes(\"ai\")) tags.push(\"ai\");\n          if (text.includes(\"agent\")) tags.push(\"agent\");\n          if (text.includes(\"llm\")) tags.push(\"llm\");\n          if (text.includes(\"copilot\")) tags.push(\"copilot\");\n          if (text.includes(\"claude\")) tags.push(\"claude\");\n          if (text.includes(\"cursor\")) tags.push(\"cursor\");\n          if (text.includes(\"react\")) tags.push(\"react\");\n          if (text.includes(\"next.js\") || text.includes(\"nextjs\")) tags.push(\"nextjs\");\n          if (text.includes(\"vite\")) tags.push(\"vite\");\n          if (text.includes(\"tailwind\")) tags.push(\"tailwind\");\n          if (text.includes(\"bun\")) tags.push(\"bun\");\n          if (text.includes(\"supabase\")) tags.push(\"supabase\");\n          if (text.includes(\"security\")) tags.push(\"security\");\n          if (text.includes(\"performance\")) tags.push(\"performance\");\n          if (text.includes(\"compiler\")) tags.push(\"compiler\");\n          if (text.includes(\"cache\")) tags.push(\"cache\");\n          if (text.includes(\"database\")) tags.push(\"database\");\n          if (text.includes(\"postgres\")) tags.push(\"postgres\");\n\n          return [...new Set(tags)];\n        })()\n      }\n    };\n  })\n  .filter(Boolean);"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -56,7 +56,8 @@
             "source_type": "={{$json.sourceType}}",
             "domain": "={{$json.domain}}",
             "trend_cluster_id": "={{ null }}",
-            "category": "={{$json.category}}"
+            "category": "={{$json.category}}",
+            "tags": "={{$json.tags}}"
           },
           "matchingColumns": [
             "id"
@@ -282,30 +283,6 @@
     },
     {
       "parameters": {
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        944,
-        -192
-      ],
-      "id": "6f576ff2-fd91-41ee-a053-1f7bd2af070e",
-      "name": "Loop Over Items"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "name": "Replace Me",
-      "typeVersion": 1,
-      "position": [
-        1168,
-        -80
-      ],
-      "id": "2bb32fe9-70bc-4054-a90f-4a34da5ae0e9"
-    },
-    {
-      "parameters": {
         "jsCode": "const items = $input.all();\n\n// 👇 this must match EXACT node name\nconst allOriginalArticles = $(\"Code in JavaScript\").all();\n\nreturn items.map((item, index) => {\n  // 1. Extract score safely\n  const ollamaResponse = item.json.response || \"0\";\n\n  const scoreMatch = ollamaResponse.match(/\\b([0-9]{1,3})\\b/);\n\n  let numericScore = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;\n\n  if (numericScore > 100) numericScore = 100;\n  if (numericScore < 0) numericScore = 0;\n\n  // 2. Get original article\n  const originalArticle = allOriginalArticles[index].json;\n\n  // 🔥 TWITTER PENALTY\n  let penalty = 0;\n  if (\n    originalArticle.url &&\n    (\n      originalArticle.url.includes(\"twitter.com\") ||\n      originalArticle.url.includes(\"x.com\")\n    )\n  ) {\n    penalty = 10;\n  }\n\n  // 🔥 FINAL SCORE\n  const finalScore =\n    numericScore +\n    (originalArticle.freshnessBoost || 0) -\n    penalty;\n\n  return {\n    json: {\n      title: originalArticle.title,\n      url: originalArticle.url,\n      linkLabel: originalArticle.linkLabel,\n      source: originalArticle.source || \"Industry Intelligence\",\n\n      // ✅ FINAL SCORE\n      score: finalScore,\n\n      // 🧠 DEBUG\n      baseScore: numericScore,\n      freshnessBoost: originalArticle.freshnessBoost || 0,\n      penaltyApplied: penalty,\n\n      // 🔥 SOURCE METADATA\n      domain: originalArticle.domain || null,\n      sourceType: originalArticle.sourceType || \"general\",\n      category: originalArticle.category || null,\n\n      // DB safe date\n      date: originalArticle.date\n        ? new Date(originalArticle.date).toISOString()\n        : new Date().toISOString()\n    }\n  };\n});"
       },
       "type": "n8n-nodes-base.code",
@@ -439,12 +416,46 @@
         320
       ],
       "id": "31d0c1dc-2f35-4ce0-bb5e-bd801f021e74",
-      "name": "Fetch RSS Feed"
+      "name": "Fetch RSS Feed",
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "url": "={{$json.source_url}}",
-        "options": {}
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n-newsletter-bot"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -453,7 +464,9 @@
         544
       ],
       "id": "832dbbbc-4010-48e6-8801-5d87da4fc99b",
-      "name": "Fetch API Source"
+      "name": "Fetch API Source",
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {},
@@ -468,7 +481,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const now = Date.now();\n\nreturn items.filter(item => {\n  const article = item.json;\n\n  const title = (article.title || \"\").toLowerCase();\n  const url = (article.url || \"\").toLowerCase();\n  const date = article.date ? new Date(article.date).getTime() : now;\n\n  const ageDays = (now - date) / (1000 * 60 * 60 * 24);\n\n  // remove very old content\n  if (ageDays > 180) return false;\n\n  // remove generic docs/tutorial content\n  const weakKeywords = [\n    \"how to\",\n    \"getting started\",\n    \"introduction\",\n    \"learn\",\n    \"guide\",\n    \"styling\",\n    \"building apis\",\n    \"introducing\",\n    \"create next app\",\n    \"recap\",\n    \"conference\",\n    \"conf\",\n    \"rc\",\n    \"release candidate\"\n  ];\n\n  if (weakKeywords.some(keyword => title.includes(keyword))) {\n    return false;\n  }\n\n  // remove patch release spam\n  const patchReleaseRegex = /^\\d+\\.\\d+\\.\\d+/;\n  if (patchReleaseRegex.test(title)) {\n    return false;\n  }\n\n  // remove duplicate security patch release titles\n  if (\n    title.includes(\"security advisory\") ||\n    title.includes(\"cve-\") ||\n    title.includes(\"dos mitigations\")\n  ) {\n    return false;\n  }\n\n  // keep only stronger keywords\n  const strongKeywords = [\n    \"compiler\",\n    \"turbopack\",\n    \"agent\",\n    \"ai\",\n    \"performance\",\n    \"cache\",\n    \"server component\",\n    \"rendering\",\n    \"edge\",\n    \"adapter\",\n    \"view transitions\",\n    \"compiler\",\n    \"migration\",\n    \"sunsetting\",\n    \"architecture\",\n    \"workflow\"\n  ];\n\n  const hasStrongKeyword = strongKeywords.some(keyword =>\n    title.includes(keyword)\n  );\n\n  // allow strong items even if slightly older\n  if (hasStrongKeyword) return true;\n\n  // otherwise require recent content\n  return ageDays <= 90;\n});"
+        "jsCode": "const now = Date.now();\n\nreturn items\n  .map(item => {\n    const article = item.json;\n\n    const title = article.title || \"\";\n    const snippet = article.snippet || article.summary || \"\";\n    const url = article.url || \"\";\n\n    const lowerTitle = title.toLowerCase();\n    const lowerSnippet = snippet.toLowerCase();\n    const combinedText = `${lowerTitle} ${lowerSnippet}`;\n\n    const date = article.date ? new Date(article.date).getTime() : now;\n    const ageDays = (now - date) / (1000 * 60 * 60 * 24);\n\n    // keep only articles from the last 7 days\n    if (ageDays > 7) return null;\n\n    // remove generic docs/tutorial content\n    const weakKeywords = [\n      \"how to\",\n      \"getting started\",\n      \"introduction\",\n      \"learn\",\n      \"guide\",\n      \"styling\",\n      \"building apis\",\n      \"introducing\",\n      \"create next app\",\n      \"recap\",\n      \"conference\",\n      \"conf\",\n      \"rc\",\n      \"release candidate\"\n    ];\n\n    if (weakKeywords.some(keyword => combinedText.includes(keyword))) {\n      return null;\n    }\n\n    // remove patch release spam\n    const patchReleaseRegex = /^\\d+\\.\\d+\\.\\d+/;\n    if (patchReleaseRegex.test(lowerTitle)) {\n      return null;\n    }\n\n    // remove duplicate security patch release titles\n    if (\n      lowerTitle.includes(\"security advisory\") ||\n      lowerTitle.includes(\"cve-\") ||\n      lowerTitle.includes(\"dos mitigations\")\n    ) {\n      return null;\n    }\n\n    // keep only stronger keywords\n    const strongKeywords = [\n      \"compiler\",\n      \"turbopack\",\n      \"agent\",\n      \"ai\",\n      \"performance\",\n      \"cache\",\n      \"server component\",\n      \"rendering\",\n      \"edge\",\n      \"adapter\",\n      \"view transitions\",\n      \"migration\",\n      \"sunsetting\",\n      \"architecture\",\n      \"workflow\",\n      \"automation\",\n      \"productivity\",\n      \"llm\",\n      \"inference\",\n      \"fine-tuning\"\n    ];\n\n    const hasStrongKeyword = strongKeywords.some(keyword =>\n      combinedText.includes(keyword)\n    );\n\n    // if article has no strong signal words, remove it\n    if (!hasStrongKeyword) {\n      return null;\n    }\n\n    // auto category detection\n    const category = (() => {\n      if (\n        combinedText.includes(\"ai\") ||\n        combinedText.includes(\"agent\") ||\n        combinedText.includes(\"llm\") ||\n        combinedText.includes(\"copilot\") ||\n        combinedText.includes(\"claude\") ||\n        combinedText.includes(\"cursor\")\n      ) {\n        return \"ai_tooling\";\n      }\n\n      if (\n        combinedText.includes(\"security\") ||\n        combinedText.includes(\"cve\") ||\n        combinedText.includes(\"vulnerability\") ||\n        combinedText.includes(\"exploit\")\n      ) {\n        return \"security\";\n      }\n\n      if (\n        combinedText.includes(\"react\") ||\n        combinedText.includes(\"next.js\") ||\n        combinedText.includes(\"nextjs\") ||\n        combinedText.includes(\"vite\") ||\n        combinedText.includes(\"tailwind\")\n      ) {\n        return \"framework_release\";\n      }\n\n      if (\n        combinedText.includes(\"performance\") ||\n        combinedText.includes(\"cache\") ||\n        combinedText.includes(\"compiler\") ||\n        combinedText.includes(\"rendering\") ||\n        combinedText.includes(\"optimization\")\n      ) {\n        return \"performance\";\n      }\n\n      if (\n        combinedText.includes(\"database\") ||\n        combinedText.includes(\"postgres\") ||\n        combinedText.includes(\"supabase\")\n      ) {\n        return \"database\";\n      }\n\n      return \"general\";\n    })();\n\n    // auto tags generation\n    const tags = [];\n\n    if (combinedText.includes(\"ai\")) tags.push(\"ai\");\n    if (combinedText.includes(\"agent\")) tags.push(\"agent\");\n    if (combinedText.includes(\"llm\")) tags.push(\"llm\");\n    if (combinedText.includes(\"react\")) tags.push(\"react\");\n    if (combinedText.includes(\"next.js\") || combinedText.includes(\"nextjs\")) tags.push(\"nextjs\");\n    if (combinedText.includes(\"vite\")) tags.push(\"vite\");\n    if (combinedText.includes(\"tailwind\")) tags.push(\"tailwind\");\n    if (combinedText.includes(\"security\")) tags.push(\"security\");\n    if (combinedText.includes(\"performance\")) tags.push(\"performance\");\n    if (combinedText.includes(\"compiler\")) tags.push(\"compiler\");\n    if (combinedText.includes(\"turbopack\")) tags.push(\"turbopack\");\n    if (combinedText.includes(\"server component\")) tags.push(\"server-components\");\n    if (combinedText.includes(\"cache\")) tags.push(\"cache\");\n    if (combinedText.includes(\"database\")) tags.push(\"database\");\n    if (combinedText.includes(\"postgres\")) tags.push(\"postgres\");\n    if (combinedText.includes(\"supabase\")) tags.push(\"supabase\");\n\n    return {\n      json: {\n        ...article,\n        category,\n        tags\n      }\n    };\n  })\n  .filter(Boolean);"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -507,29 +520,6 @@
     "Insert rows in a table": {
       "main": [
         []
-      ]
-    },
-    "Loop Over Items": {
-      "main": [
-        [],
-        [
-          {
-            "node": "Replace Me",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Replace Me": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
       ]
     },
     "Code in JavaScript1": {
@@ -674,7 +664,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "d5d08c72-d87b-46d8-a852-2a99942b8f87",
+  "versionId": "741dfac4-a758-4535-a14d-0265a46cc01e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
