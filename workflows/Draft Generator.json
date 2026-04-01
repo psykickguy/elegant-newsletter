@@ -37,8 +37,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1824,
-        1280
+        2016,
+        1216
       ],
       "id": "2ed55a0e-0cdd-4aed-9891-4d931329c623",
       "name": "Code in JavaScript8"
@@ -64,7 +64,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT title, url, source\nFROM discoveries\nORDER BY id DESC\nLIMIT 8;",
+        "query": "SELECT title, url, source, link_label AS \"linkLabel\"\nFROM discoveries\nORDER BY id DESC\nLIMIT 8;",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
@@ -98,7 +98,8 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "html_content": "={{ $json.html }}"
+            "html_content": "={{ $json.html }}",
+            "linkedin_post": "={{ $json.linkedin_post }}"
           },
           "matchingColumns": [
             "id"
@@ -132,6 +133,16 @@
               "type": "dateTime",
               "canBeUsedToMatch": true,
               "removed": true
+            },
+            {
+              "id": "linkedin_post",
+              "displayName": "linkedin_post",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -142,8 +153,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1984,
-        1136
+        2640,
+        1120
       ],
       "id": "d34412bc-1a08-4a61-b910-de4478282437",
       "name": "Insert rows in a table1",
@@ -338,8 +349,8 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        2224,
-        1280
+        2848,
+        1248
       ],
       "id": "2976ba73-921a-4adc-8db7-6095917b0e63",
       "name": "Send an Email1",
@@ -376,6 +387,96 @@
       ],
       "id": "6a1baf07-7280-4c5a-9556-e636a770fbda",
       "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const articles = $(\"Code in JavaScript\").all().map(item => item.json);\n\nconst grouped = articles.map((a, i) => `\n${i + 1}. ${a.title}\nSource: ${a.source}\nURL: ${a.url}\n`).join('\\n');\n\nconst prompt = `\nYou are writing a high-performing LinkedIn post for Elegant Frontend.\n\nUse the discoveries below:\n\n${grouped}\n\nWrite a concise LinkedIn post for frontend developers and technical founders.\n\nRules:\n- Start with a strong hook\n- Use 2-3 short paragraphs\n- Include 3 bullet points\n- End with a question\n- Add 3-5 relevant hashtags\n- Professional tone\n- Avoid sounding like marketing fluff\n- Focus on trends, shifts, and what developers should care about\n- Maximum 220 words\n- No emojis\n- No markdown\n- Return plain text only\n\nExample style:\n\nFrontend tools are moving away from bloated “AI everywhere” experiences.\n\nThis week:\n• Teams focused on privacy-first workflows\n• Developers wanted faster local tooling\n• AI products became more workflow-driven\n\nThe strongest products are becoming simpler, not bigger.\n\nWhich trend matters most to you?\n\n#frontend #webdev #ai\n`;\n\nreturn [{\n  json: {\n    prompt,\n    finalDraft: $json.finalDraft,\n    wasRefined: $json.wasRefined\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        1408
+      ],
+      "id": "c441374f-6081-4752-92e9-ac0e93ef8bbf",
+      "name": "Build LinkedIn Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2:3b\",\n  \"prompt\": {{ JSON.stringify($json.prompt) }},\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2048,
+        1488
+      ],
+      "id": "8cf10a7b-e1f1-4911-8580-6ce0e09cc39b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const linkedinPost = $json.response || \"LinkedIn post generation failed.\";\n\nreturn [{\n  json: {\n    linkedin_post: linkedinPost,\n    finalDraft: $node[\"Merge1\"].json.finalDraft,\n    wasRefined: $node[\"Merge1\"].json.wasRefined\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        1440
+      ],
+      "id": "397565ed-86f9-4c2d-81c9-8b998247e3c7",
+      "name": "Format LinkedIn Output"
+    },
+    {
+      "parameters": {
+        "jsCode": "const linkedinPost = $json.linkedin_post || \"No LinkedIn post available.\";\n\nreturn [{\n  json: {\n    text: \"LinkedIn Draft\",\n    blocks: [\n      {\n        type: \"header\",\n        text: {\n          type: \"plain_text\",\n          text: \"LinkedIn Post Draft\"\n        }\n      },\n      {\n        type: \"section\",\n        text: {\n          type: \"mrkdwn\",\n          text: linkedinPost\n        }\n      }\n    ]\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        1488
+      ],
+      "id": "1a503613-c150-4bba-8c79-3f5eebb607d6",
+      "name": "Build LinkedIn Slack Preview"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2672,
+        1488
+      ],
+      "id": "2cac4283-29b7-4596-86fb-6ed7c1f20456",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2416,
+        1296
+      ],
+      "id": "b5ff6bfa-62d4-4113-9040-319e00386158",
+      "name": "Merge"
     }
   ],
   "pinData": {},
@@ -406,7 +507,7 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table1",
+            "node": "Merge",
             "type": "main",
             "index": 0
           }
@@ -548,6 +649,11 @@
             "node": "Code in JavaScript8",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Build LinkedIn Prompt",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -584,6 +690,66 @@
           }
         ]
       ]
+    },
+    "Build LinkedIn Prompt": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Format LinkedIn Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format LinkedIn Output": {
+      "main": [
+        [
+          {
+            "node": "Build LinkedIn Slack Preview",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Build LinkedIn Slack Preview": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -592,7 +758,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "4d0967a8-5ed5-4e3b-9f37-47febe1563a1",
+  "versionId": "bfea4d6d-37b9-48dd-abd0-0d2c0bf6ceb5",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"

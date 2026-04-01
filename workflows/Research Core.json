@@ -6,8 +6,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -368,
-        -96
+        -496,
+        16
       ],
       "id": "b3b38f8d-bc65-45e7-8bbc-73128c9ef2bf",
       "name": "When clicking ‘Execute workflow’"
@@ -20,8 +20,8 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        80,
-        -288
+        112,
+        -560
       ],
       "id": "ec9c86e5-27e6-4d4e-a2e6-bc0df833da81",
       "name": "RSS Read"
@@ -67,8 +67,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        144,
-        192
+        176,
+        -80
       ],
       "id": "d14afcbd-70c8-4397-8b03-8b80c8f41d66",
       "name": "HTTP Request",
@@ -106,8 +106,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        176,
-        368
+        208,
+        96
       ],
       "id": "6b4d7f65-e8f8-4f6c-b52d-b5b7a3abd7a6",
       "name": "HTTP Request1"
@@ -252,8 +252,8 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        48,
-        -144
+        80,
+        -416
       ],
       "id": "d3fd1f1a-2693-4d28-8fb3-b8a7cfa88710",
       "name": "RSS Read1"
@@ -266,8 +266,8 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        64,
-        48
+        96,
+        -224
       ],
       "id": "4a0cd16e-82ed-4ee1-96f3-127937bd9f72",
       "name": "RSS Read2"
@@ -279,8 +279,8 @@
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        304,
-        -256
+        336,
+        -528
       ],
       "id": "8d13979e-b3d7-41b6-9568-3fdb5389e4f1",
       "name": "Limit"
@@ -292,8 +292,8 @@
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        304,
-        -96
+        336,
+        -368
       ],
       "id": "38db84d9-77de-42cc-b23c-8dfec7cf63a4",
       "name": "Limit1"
@@ -305,8 +305,8 @@
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        304,
-        48
+        336,
+        -224
       ],
       "id": "96513fa2-9679-4315-af3f-f1755d298162",
       "name": "Limit2"
@@ -391,8 +391,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        192,
-        544
+        224,
+        272
       ],
       "id": "cf49d8b7-0627-4229-846d-5fe833c682f3",
       "name": "Twitter - Tools",
@@ -428,8 +428,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        144,
-        704
+        176,
+        432
       ],
       "id": "6f101daa-0a01-484e-b261-ef438c480f54",
       "name": "Twitter - Workflow",
@@ -469,8 +469,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        160,
-        880
+        192,
+        608
       ],
       "id": "85dc3273-3f2c-4552-b165-56fff58c30a7",
       "name": "Twitter - Agent",
@@ -760,7 +760,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "c7935883-49e8-4ede-825d-e6f6033a6b46",
+  "versionId": "b62e6209-22c0-47d5-84fe-bff742004604",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"

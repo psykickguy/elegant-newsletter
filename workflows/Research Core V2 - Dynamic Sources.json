@@ -1,0 +1,684 @@
+{
+  "name": "Research Core V2 - Dynamic Sources",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        16
+      ],
+      "id": "e8177fb7-4c04-4340-9fca-d6d300764bc6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🔥 HELPERS\nconst getBestUrl = (article) => {\n  return (\n    article.html_url ||\n    article.url ||\n    article.link ||\n    article.status_link ||\n    article.twitter_url ||\n    article.source_url ||\n    null\n  );\n};\n\nconst getLinkLabel = (url) => {\n  if (!url) return \"Read More\";\n\n  if (url.includes(\"github.com\")) return \"View GitHub Repo\";\n  if (url.includes(\"/releases\")) return \"View Release Notes\";\n  if (url.includes(\"youtube.com\")) return \"Watch Demo\";\n  if (url.includes(\"docs.\")) return \"Read Documentation\";\n  if (url.includes(\"blog\")) return \"Read Engineering Breakdown\";\n  if (url.includes(\"twitter.com\") || url.includes(\"x.com\")) return \"View Discussion\";\n  if (url.includes(\"vercel.com\")) return \"Read Product Update\";\n  if (url.includes(\"cloudflare.com\")) return \"Read Technical Breakdown\";\n\n  return \"Read Full Breakdown\";\n};\n\n// 1. EXTRACT ALL ARTICLES\nlet flatData = [];\nconst items = $input.all();\n\nitems.forEach(item => {\n  const data = item.json;\n\n  if (data.hits && Array.isArray(data.hits)) {\n    flatData.push(...data.hits);\n  } \n  else if (data.news_results && Array.isArray(data.news_results)) {\n    flatData.push(...data.news_results);\n  } \n  else if (data.tweets && Array.isArray(data.tweets)) {\n    flatData.push(...data.tweets);\n  }\n  else if (data.items && Array.isArray(data.items)) {\n    flatData.push(...data.items);\n  }\n  else if (Array.isArray(data)) {\n    flatData.push(...data);\n  }\n  else {\n    flatData.push(data);\n  }\n});\n\n// 2. UNIQUE LIST\nconst uniqueList = Array.from(\n  new Map(\n    flatData.map(item => [\n      item.html_url ||\n      item.url ||\n      item.link ||\n      item.twitter_url ||\n      item.status_link,\n      item\n    ])\n  ).values()\n);\n\n// 3. GENERATE PROMPTS + FIXED URL LOGIC\nreturn uniqueList\n  .map(article => {\n\n    const title =\n      article.title ||\n      article.name ||\n      article.text ||\n      article.story_title ||\n      \"Untitled\";\n\n    const snippet =\n      article.snippet ||\n      article.description ||\n      article.body ||\n      article.text ||\n      article.story_text ||\n      article.contentSnippet ||\n      \"No snippet available\";\n\n    if (!title || title.length < 20) return null;\n\n    // ✅ FIXED URL LOGIC\n    const url = getBestUrl(article);\n\n    // ❌ FILTER BAD LINKS\n    if (!url || url.includes(\"search\") || url.includes(\"google.com\")) {\n      return null;\n    }\n\n    // 🔥 FRESHNESS BOOST\n    const now = Date.now();\n    const articleDate = new Date(\n      article.date ||\n      article.publishedAt ||\n      article.created_at ||\n      article.pubDate ||\n      now\n    ).getTime();\n\n    const ageHours = (now - articleDate) / (1000 * 60 * 60);\n\n    let freshnessBoost = 0;\n    if (ageHours < 24) freshnessBoost = 10;\n    else if (ageHours < 72) freshnessBoost = 5;\n\n    const ollamaPrompt = `\nYou are a senior AI developer newsletter curator.\n\nEvaluate this content for:\n- Real-world developer usage\n- Productivity improvement\n- Emerging tools or trends\n- Signal vs noise\n\nGive HIGH scores if:\n- Copilot / Claude / Cursor workflows\n- Automation or dev acceleration\n- Real developer impact\n- Framework releases\n- GitHub launches\n- Engineering blogs\n- Technical implementation details\n- Performance improvements\n- Architecture changes\n\nGive LOW scores if:\n- Generic blogs\n- Marketing fluff\n- Opinion-only content\n- Startup motivational posts\n- Generic AI listicles\n\nReject content that is:\n- motivational\n- opinion-only\n- not showing real implementation, workflow, or technical insight\n\nTITLE: ${title}\nSNIPPET: ${snippet}\n\nRespond ONLY with a number from 0 to 100.\n`;\n\n    return {\n      json: {\n        title: title,\n        url: url,\n\n        linkLabel: getLinkLabel(url),\n\n        source:\n          article.source?.name ||\n          article.source ||\n          article.user?.name ||\n          article.author ||\n          \"Industry Source\",\n\n        prompt: ollamaPrompt,\n        freshnessBoost: freshnessBoost,\n        date:\n          article.date ||\n          article.publishedAt ||\n          article.created_at ||\n          article.pubDate ||\n          null,\n\n        domain: (() => {\n          try {\n            return new URL(url).hostname.replace(\"www.\", \"\");\n          } catch {\n            return null;\n          }\n        })(),\n\n        sourceType: (() => {\n          if (url.includes(\"github.com\")) return \"github\";\n          if (url.includes(\"react.dev\")) return \"framework_release\";\n          if (url.includes(\"nextjs.org\")) return \"framework_release\";\n          if (url.includes(\"tailwindcss.com\")) return \"framework_release\";\n          if (url.includes(\"vite.dev\")) return \"framework_release\";\n          if (url.includes(\"cloudflare.com\")) return \"engineering_blog\";\n          if (url.includes(\"vercel.com\")) return \"engineering_blog\";\n          if (url.includes(\"builder.io\")) return \"engineering_blog\";\n          if (url.includes(\"twitter.com\") || url.includes(\"x.com\")) return \"social\";\n          return \"general\";\n        })(),\n\n        category: article.category || null\n      }\n    };\n  })\n  .filter(Boolean);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        240
+      ],
+      "id": "99c4511c-c0e2-4f06-b935-4e9e181b711d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "discoveries",
+          "mode": "list",
+          "cachedResultName": "discoveries"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "url": "={{ $json.url }}",
+            "source": "={{ $json.source }}",
+            "link_label": "={{ $json.linkLabel }}",
+            "score": "={{ $json.score }}",
+            "base_score": "={{ $json.baseScore }}",
+            "freshness_boost": "={{ $json.freshnessBoost }}",
+            "source_authority_boost": 0,
+            "trend_potential_boost": 0,
+            "implementation_depth_boost": 0,
+            "repeat_mention_boost": 0,
+            "penalty": "={{ $json.penaltyApplied }}",
+            "source_type": "={{$json.sourceType}}",
+            "domain": "={{$json.domain}}",
+            "trend_cluster_id": "={{ null }}",
+            "category": "={{$json.category}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "link_label",
+              "displayName": "link_label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "base_score",
+              "displayName": "base_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "freshness_boost",
+              "displayName": "freshness_boost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source_authority_boost",
+              "displayName": "source_authority_boost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "trend_potential_boost",
+              "displayName": "trend_potential_boost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "implementation_depth_boost",
+              "displayName": "implementation_depth_boost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "repeat_mention_boost",
+              "displayName": "repeat_mention_boost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "penalty",
+              "displayName": "penalty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tags",
+              "displayName": "tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source_type",
+              "displayName": "source_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "trend_cluster_id",
+              "displayName": "trend_cluster_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2160,
+        256
+      ],
+      "id": "34d8da4f-6d0b-4a07-bcfc-d68790bf24ed",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "qKU0Tc69L4alq44T",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        944,
+        -192
+      ],
+      "id": "6f576ff2-fd91-41ee-a053-1f7bd2af070e",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        -80
+      ],
+      "id": "2bb32fe9-70bc-4054-a90f-4a34da5ae0e9"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// 👇 this must match EXACT node name\nconst allOriginalArticles = $(\"Code in JavaScript\").all();\n\nreturn items.map((item, index) => {\n  // 1. Extract score safely\n  const ollamaResponse = item.json.response || \"0\";\n\n  const scoreMatch = ollamaResponse.match(/\\b([0-9]{1,3})\\b/);\n\n  let numericScore = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;\n\n  if (numericScore > 100) numericScore = 100;\n  if (numericScore < 0) numericScore = 0;\n\n  // 2. Get original article\n  const originalArticle = allOriginalArticles[index].json;\n\n  // 🔥 TWITTER PENALTY\n  let penalty = 0;\n  if (\n    originalArticle.url &&\n    (\n      originalArticle.url.includes(\"twitter.com\") ||\n      originalArticle.url.includes(\"x.com\")\n    )\n  ) {\n    penalty = 10;\n  }\n\n  // 🔥 FINAL SCORE\n  const finalScore =\n    numericScore +\n    (originalArticle.freshnessBoost || 0) -\n    penalty;\n\n  return {\n    json: {\n      title: originalArticle.title,\n      url: originalArticle.url,\n      linkLabel: originalArticle.linkLabel,\n      source: originalArticle.source || \"Industry Intelligence\",\n\n      // ✅ FINAL SCORE\n      score: finalScore,\n\n      // 🧠 DEBUG\n      baseScore: numericScore,\n      freshnessBoost: originalArticle.freshnessBoost || 0,\n      penaltyApplied: penalty,\n\n      // 🔥 SOURCE METADATA\n      domain: originalArticle.domain || null,\n      sourceType: originalArticle.sourceType || \"general\",\n      category: originalArticle.category || null,\n\n      // DB safe date\n      date: originalArticle.date\n        ? new Date(originalArticle.date).toISOString()\n        : new Date().toISOString()\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        -16
+      ],
+      "id": "4347e2a9-7015-4c81-a7cc-d8cea32e3cdf",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2:3b\",\n  \"prompt\": {{ JSON.stringify($json.prompt) }},\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1648,
+        0
+      ],
+      "id": "bb7c3922-f42b-4e06-b884-648b77b6d36c",
+      "name": "Prepare for Ollama"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items\n  .sort((a, b) => b.json.score - a.json.score)\n  .slice(0, 10);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        -16
+      ],
+      "id": "42ec3537-cd8d-4e88-ac04-23597df0a6d9",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *\nFROM source_registry\nWHERE active = true\nORDER BY quality_score DESC, created_at ASC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        48,
+        288
+      ],
+      "id": "e470d9d7-5fa4-4d43-a0bd-eb031585de4a",
+      "name": "Read Active Sources",
+      "credentials": {
+        "postgres": {
+          "id": "qKU0Tc69L4alq44T",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me1",
+      "typeVersion": 1,
+      "position": [
+        480,
+        560
+      ],
+      "id": "9591ce7c-4230-4754-a1d0-99d7fba93c4d"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        240,
+        320
+      ],
+      "id": "9b0f8316-49bd-42c4-b87d-bf13ac4bd74c",
+      "name": "Loop Sources"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9ac7854a-d06a-4e7f-baf9-87edcf82adcd",
+              "leftValue": "={{ $json.source_type }}",
+              "rightValue": "rss",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        224
+      ],
+      "id": "83a78ca7-453c-48e3-8ff7-39db8e9091d6",
+      "name": "Is RSS Source?"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.source_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        320
+      ],
+      "id": "31d0c1dc-2f35-4ce0-bb5e-bd801f021e74",
+      "name": "Fetch RSS Feed"
+    },
+    {
+      "parameters": {
+        "url": "={{$json.source_url}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        752,
+        544
+      ],
+      "id": "832dbbbc-4010-48e6-8801-5d87da4fc99b",
+      "name": "Fetch API Source"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        992,
+        416
+      ],
+      "id": "ab66035f-c4b1-447f-851f-f2b030e0f725",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = Date.now();\n\nreturn items.filter(item => {\n  const article = item.json;\n\n  const title = (article.title || \"\").toLowerCase();\n  const url = (article.url || \"\").toLowerCase();\n  const date = article.date ? new Date(article.date).getTime() : now;\n\n  const ageDays = (now - date) / (1000 * 60 * 60 * 24);\n\n  // remove very old content\n  if (ageDays > 180) return false;\n\n  // remove generic docs/tutorial content\n  const weakKeywords = [\n    \"how to\",\n    \"getting started\",\n    \"introduction\",\n    \"learn\",\n    \"guide\",\n    \"styling\",\n    \"building apis\",\n    \"introducing\",\n    \"create next app\",\n    \"recap\",\n    \"conference\",\n    \"conf\",\n    \"rc\",\n    \"release candidate\"\n  ];\n\n  if (weakKeywords.some(keyword => title.includes(keyword))) {\n    return false;\n  }\n\n  // remove patch release spam\n  const patchReleaseRegex = /^\\d+\\.\\d+\\.\\d+/;\n  if (patchReleaseRegex.test(title)) {\n    return false;\n  }\n\n  // remove duplicate security patch release titles\n  if (\n    title.includes(\"security advisory\") ||\n    title.includes(\"cve-\") ||\n    title.includes(\"dos mitigations\")\n  ) {\n    return false;\n  }\n\n  // keep only stronger keywords\n  const strongKeywords = [\n    \"compiler\",\n    \"turbopack\",\n    \"agent\",\n    \"ai\",\n    \"performance\",\n    \"cache\",\n    \"server component\",\n    \"rendering\",\n    \"edge\",\n    \"adapter\",\n    \"view transitions\",\n    \"compiler\",\n    \"migration\",\n    \"sunsetting\",\n    \"architecture\",\n    \"workflow\"\n  ];\n\n  const hasStrongKeyword = strongKeywords.some(keyword =>\n    title.includes(keyword)\n  );\n\n  // allow strong items even if slightly older\n  if (hasStrongKeyword) return true;\n\n  // otherwise require recent content\n  return ageDays <= 90;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        240
+      ],
+      "id": "6099df27-eacc-43e0-b4a3-f6a5fc41b75b",
+      "name": "Filter Weak Articles"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read Active Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Filter Weak Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        []
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare for Ollama": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Active Sources": {
+      "main": [
+        [
+          {
+            "node": "Loop Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me1": {
+      "main": [
+        [
+          {
+            "node": "Loop Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Sources": {
+      "main": [
+        [
+          {
+            "node": "Is RSS Source?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is RSS Source?": {
+      "main": [
+        [
+          {
+            "node": "Fetch RSS Feed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch API Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch API Source": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch RSS Feed": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Weak Articles": {
+      "main": [
+        [
+          {
+            "node": "Prepare for Ollama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d5d08c72-d87b-46d8-a852-2a99942b8f87",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
+  },
+  "id": "LaoFHcGT9vwL4A89",
+  "tags": []
+}
