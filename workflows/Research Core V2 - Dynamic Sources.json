@@ -269,8 +269,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2160,
-        256
+        2272,
+        240
       ],
       "id": "34d8da4f-6d0b-4a07-bcfc-d68790bf24ed",
       "name": "Insert rows in a table",
@@ -288,8 +288,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1872,
-        -16
+        1728,
+        272
       ],
       "id": "4347e2a9-7015-4c81-a7cc-d8cea32e3cdf",
       "name": "Code in JavaScript1"
@@ -314,12 +314,12 @@
     },
     {
       "parameters": {
-        "jsCode": "return items\n  .sort((a, b) => b.json.score - a.json.score)\n  .slice(0, 10);"
+        "jsCode": "const domainCounts = {};\n\nconst rescoredItems = items.map(item => {\n  let domain = item.json.domain;\n\n  if (!domain && item.json.url) {\n    try {\n      domain = new URL(item.json.url).hostname.replace(\"www.\", \"\");\n    } catch {\n      domain = \"unknown\";\n    }\n  }\n\n  if (!domainCounts[domain]) {\n    domainCounts[domain] = 0;\n  }\n\n  domainCounts[domain]++;\n\n  const repeatPenalty = Math.max(0, (domainCounts[domain] - 1) * 5);\n\n  return {\n    json: {\n      ...item.json,\n      adjustedScore: item.json.score - repeatPenalty,\n      repeatPenalty\n    }\n  };\n});\n\nreturn rescoredItems\n  .sort((a, b) => b.json.adjustedScore - a.json.adjustedScore)\n  .slice(0, 15);"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2096,
+        1952,
         -16
       ],
       "id": "42ec3537-cd8d-4e88-ac04-23597df0a6d9",
@@ -481,7 +481,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const now = Date.now();\n\nreturn items\n  .map(item => {\n    const article = item.json;\n\n    const title = article.title || \"\";\n    const snippet = article.snippet || article.summary || \"\";\n    const url = article.url || \"\";\n\n    const lowerTitle = title.toLowerCase();\n    const lowerSnippet = snippet.toLowerCase();\n    const combinedText = `${lowerTitle} ${lowerSnippet}`;\n\n    const date = article.date ? new Date(article.date).getTime() : now;\n    const ageDays = (now - date) / (1000 * 60 * 60 * 24);\n\n    // keep only articles from the last 7 days\n    if (ageDays > 7) return null;\n\n    // remove generic docs/tutorial content\n    const weakKeywords = [\n      \"how to\",\n      \"getting started\",\n      \"introduction\",\n      \"learn\",\n      \"guide\",\n      \"styling\",\n      \"building apis\",\n      \"introducing\",\n      \"create next app\",\n      \"recap\",\n      \"conference\",\n      \"conf\",\n      \"rc\",\n      \"release candidate\"\n    ];\n\n    if (weakKeywords.some(keyword => combinedText.includes(keyword))) {\n      return null;\n    }\n\n    // remove patch release spam\n    const patchReleaseRegex = /^\\d+\\.\\d+\\.\\d+/;\n    if (patchReleaseRegex.test(lowerTitle)) {\n      return null;\n    }\n\n    // remove duplicate security patch release titles\n    if (\n      lowerTitle.includes(\"security advisory\") ||\n      lowerTitle.includes(\"cve-\") ||\n      lowerTitle.includes(\"dos mitigations\")\n    ) {\n      return null;\n    }\n\n    // keep only stronger keywords\n    const strongKeywords = [\n      \"compiler\",\n      \"turbopack\",\n      \"agent\",\n      \"ai\",\n      \"performance\",\n      \"cache\",\n      \"server component\",\n      \"rendering\",\n      \"edge\",\n      \"adapter\",\n      \"view transitions\",\n      \"migration\",\n      \"sunsetting\",\n      \"architecture\",\n      \"workflow\",\n      \"automation\",\n      \"productivity\",\n      \"llm\",\n      \"inference\",\n      \"fine-tuning\"\n    ];\n\n    const hasStrongKeyword = strongKeywords.some(keyword =>\n      combinedText.includes(keyword)\n    );\n\n    // if article has no strong signal words, remove it\n    if (!hasStrongKeyword) {\n      return null;\n    }\n\n    // auto category detection\n    const category = (() => {\n      if (\n        combinedText.includes(\"ai\") ||\n        combinedText.includes(\"agent\") ||\n        combinedText.includes(\"llm\") ||\n        combinedText.includes(\"copilot\") ||\n        combinedText.includes(\"claude\") ||\n        combinedText.includes(\"cursor\")\n      ) {\n        return \"ai_tooling\";\n      }\n\n      if (\n        combinedText.includes(\"security\") ||\n        combinedText.includes(\"cve\") ||\n        combinedText.includes(\"vulnerability\") ||\n        combinedText.includes(\"exploit\")\n      ) {\n        return \"security\";\n      }\n\n      if (\n        combinedText.includes(\"react\") ||\n        combinedText.includes(\"next.js\") ||\n        combinedText.includes(\"nextjs\") ||\n        combinedText.includes(\"vite\") ||\n        combinedText.includes(\"tailwind\")\n      ) {\n        return \"framework_release\";\n      }\n\n      if (\n        combinedText.includes(\"performance\") ||\n        combinedText.includes(\"cache\") ||\n        combinedText.includes(\"compiler\") ||\n        combinedText.includes(\"rendering\") ||\n        combinedText.includes(\"optimization\")\n      ) {\n        return \"performance\";\n      }\n\n      if (\n        combinedText.includes(\"database\") ||\n        combinedText.includes(\"postgres\") ||\n        combinedText.includes(\"supabase\")\n      ) {\n        return \"database\";\n      }\n\n      return \"general\";\n    })();\n\n    // auto tags generation\n    const tags = [];\n\n    if (combinedText.includes(\"ai\")) tags.push(\"ai\");\n    if (combinedText.includes(\"agent\")) tags.push(\"agent\");\n    if (combinedText.includes(\"llm\")) tags.push(\"llm\");\n    if (combinedText.includes(\"react\")) tags.push(\"react\");\n    if (combinedText.includes(\"next.js\") || combinedText.includes(\"nextjs\")) tags.push(\"nextjs\");\n    if (combinedText.includes(\"vite\")) tags.push(\"vite\");\n    if (combinedText.includes(\"tailwind\")) tags.push(\"tailwind\");\n    if (combinedText.includes(\"security\")) tags.push(\"security\");\n    if (combinedText.includes(\"performance\")) tags.push(\"performance\");\n    if (combinedText.includes(\"compiler\")) tags.push(\"compiler\");\n    if (combinedText.includes(\"turbopack\")) tags.push(\"turbopack\");\n    if (combinedText.includes(\"server component\")) tags.push(\"server-components\");\n    if (combinedText.includes(\"cache\")) tags.push(\"cache\");\n    if (combinedText.includes(\"database\")) tags.push(\"database\");\n    if (combinedText.includes(\"postgres\")) tags.push(\"postgres\");\n    if (combinedText.includes(\"supabase\")) tags.push(\"supabase\");\n\n    return {\n      json: {\n        ...article,\n        category,\n        tags\n      }\n    };\n  })\n  .filter(Boolean);"
+        "jsCode": "const now = Date.now();\n\nreturn items\n  .map(item => {\n    const article = item.json;\n\n    const title = (article.title || \"\").trim();\n    const snippet = (article.snippet || article.summary || \"\").trim();\n    const url = article.url || \"\";\n\n    const lowerTitle = title.toLowerCase();\n    const lowerSnippet = snippet.toLowerCase();\n    const combinedText = `${lowerTitle} ${lowerSnippet}`;\n\n    // remove deleted / removed reddit posts\n    const blockedRedditPatterns = [\n      \"[removed]\",\n      \"[deleted]\",\n      \"sorry, this post was deleted\",\n      \"removed by moderator\",\n      \"removed by reddit\",\n      \"this post was deleted\"\n    ];\n\n    if (\n      lowerTitle === \"[deleted]\" ||\n      lowerTitle === \"[removed]\" ||\n      lowerSnippet === \"[removed]\" ||\n      lowerSnippet === \"[deleted]\"\n    ) {\n      return null;\n    }\n\n    if (blockedRedditPatterns.some(pattern => combinedText.includes(pattern))) {\n      return null;\n    }\n\n    const date = article.date ? new Date(article.date).getTime() : now;\n    const ageDays = (now - date) / (1000 * 60 * 60 * 24);\n\n    // only keep articles from last 5 days\n    if (ageDays > 5) {\n      return null;\n    }\n\n    // title too short / useless\n    if (title.length < 20) {\n      return null;\n    }\n\n    // remove generic/tutorial/noise content\n    const weakKeywords = [\n      \"how to\",\n      \"getting started\",\n      \"introduction\",\n      \"learn\",\n      \"guide\",\n      \"styling\",\n      \"building apis\",\n      \"introducing\",\n      \"create next app\",\n      \"recap\",\n      \"conference\",\n      \"conf\",\n      \"rc\",\n      \"release candidate\",\n      \"road map\",\n      \"weekly\",\n      \"newsletter\",\n      \"podcast\",\n      \"youtube\",\n      \"video\",\n      \"webinar\",\n      \"course\",\n      \"tutorial\",\n      \"beginner\",\n      \"tips\",\n      \"best practices\",\n      \"opinion\",\n      \"thoughts\",\n      \"roundup\",\n      \"round-up\",\n      \"case study\",\n      \"sponsor\",\n      \"community update\"\n    ];\n\n    if (weakKeywords.some(keyword => combinedText.includes(keyword))) {\n      return null;\n    }\n\n    // remove patch release spam\n    const patchReleaseRegex = /^\\d+\\.\\d+\\.\\d+/;\n    if (patchReleaseRegex.test(lowerTitle)) {\n      return null;\n    }\n\n    // remove small update titles\n    const minorUpdateKeywords = [\n      \"bug fix\",\n      \"bugfix\",\n      \"minor update\",\n      \"maintenance release\",\n      \"patch release\",\n      \"security advisory\",\n      \"cve-\",\n      \"dos mitigations\",\n      \"hotfix\",\n      \"fixed issue\",\n      \"fixed bug\",\n      \"resolved issue\",\n      \"changelog\",\n      \"release notes\"\n    ];\n\n    if (minorUpdateKeywords.some(keyword => combinedText.includes(keyword))) {\n      return null;\n    }\n\n    // stronger keyword weighting\n    const strongKeywords = [\n      \"compiler\",\n      \"turbopack\",\n      \"agent\",\n      \"ai\",\n      \"performance\",\n      \"cache\",\n      \"server component\",\n      \"rendering\",\n      \"edge\",\n      \"adapter\",\n      \"view transitions\",\n      \"migration\",\n      \"sunsetting\",\n      \"architecture\",\n      \"workflow\",\n      \"automation\",\n      \"productivity\",\n      \"llm\",\n      \"inference\",\n      \"fine-tuning\",\n      \"benchmark\",\n      \"breaking change\",\n      \"deprecation\",\n      \"major release\",\n      \"launch\",\n      \"funding\",\n      \"acquisition\",\n      \"open source\",\n      \"startup\",\n      \"framework\",\n      \"database\",\n      \"postgres\",\n      \"supabase\",\n      \"vector database\",\n      \"embedding\",\n      \"rag\",\n      \"copilot\",\n      \"claude\",\n      \"cursor\",\n      \"react\",\n      \"next.js\",\n      \"nextjs\",\n      \"vite\",\n      \"tailwind\",\n      \"typescript\",\n      \"rust\",\n      \"node.js\",\n      \"bun\"\n    ];\n\n    const matchedStrongKeywords = strongKeywords.filter(keyword =>\n      combinedText.includes(keyword)\n    );\n\n    // require at least 2 strong signals\n    if (matchedStrongKeywords.length < 2) {\n      return null;\n    }\n\n    // title relevance scoring\n    let score = 0;\n\n    matchedStrongKeywords.forEach(() => {\n      score += 2;\n    });\n\n    if (lowerTitle.includes(\"ai\")) score += 3;\n    if (lowerTitle.includes(\"agent\")) score += 3;\n    if (lowerTitle.includes(\"llm\")) score += 3;\n    if (lowerTitle.includes(\"react\")) score += 2;\n    if (lowerTitle.includes(\"next.js\") || lowerTitle.includes(\"nextjs\")) score += 2;\n    if (lowerTitle.includes(\"performance\")) score += 2;\n    if (lowerTitle.includes(\"compiler\")) score += 2;\n    if (lowerTitle.includes(\"database\")) score += 2;\n    if (lowerTitle.includes(\"postgres\")) score += 2;\n    if (lowerTitle.includes(\"supabase\")) score += 2;\n    if (lowerTitle.includes(\"breaking\")) score += 3;\n    if (lowerTitle.includes(\"launch\")) score += 2;\n    if (lowerTitle.includes(\"migration\")) score += 2;\n    if (lowerTitle.includes(\"benchmark\")) score += 2;\n\n    // punish weak sounding titles\n    if (lowerTitle.includes(\"tips\")) score -= 3;\n    if (lowerTitle.includes(\"guide\")) score -= 3;\n    if (lowerTitle.includes(\"tutorial\")) score -= 3;\n    if (lowerTitle.includes(\"how to\")) score -= 4;\n    if (lowerTitle.includes(\"beginner\")) score -= 4;\n\n    // require decent minimum score\n    if (score < 6) {\n      return null;\n    }\n\n    // auto category detection\n    const category = (() => {\n      if (\n        combinedText.includes(\"ai\") ||\n        combinedText.includes(\"agent\") ||\n        combinedText.includes(\"llm\") ||\n        combinedText.includes(\"copilot\") ||\n        combinedText.includes(\"claude\") ||\n        combinedText.includes(\"cursor\")\n      ) {\n        return \"ai_tooling\";\n      }\n\n      if (\n        combinedText.includes(\"security\") ||\n        combinedText.includes(\"cve\") ||\n        combinedText.includes(\"vulnerability\") ||\n        combinedText.includes(\"exploit\")\n      ) {\n        return \"security\";\n      }\n\n      if (\n        combinedText.includes(\"react\") ||\n        combinedText.includes(\"next.js\") ||\n        combinedText.includes(\"nextjs\") ||\n        combinedText.includes(\"vite\") ||\n        combinedText.includes(\"tailwind\")\n      ) {\n        return \"framework_release\";\n      }\n\n      if (\n        combinedText.includes(\"performance\") ||\n        combinedText.includes(\"cache\") ||\n        combinedText.includes(\"compiler\") ||\n        combinedText.includes(\"rendering\") ||\n        combinedText.includes(\"optimization\")\n      ) {\n        return \"performance\";\n      }\n\n      if (\n        combinedText.includes(\"database\") ||\n        combinedText.includes(\"postgres\") ||\n        combinedText.includes(\"supabase\")\n      ) {\n        return \"database\";\n      }\n\n      return \"general\";\n    })();\n\n    // auto tags generation\n    const tags = [];\n\n    if (combinedText.includes(\"ai\")) tags.push(\"ai\");\n    if (combinedText.includes(\"agent\")) tags.push(\"agent\");\n    if (combinedText.includes(\"llm\")) tags.push(\"llm\");\n    if (combinedText.includes(\"react\")) tags.push(\"react\");\n    if (combinedText.includes(\"next.js\") || combinedText.includes(\"nextjs\")) tags.push(\"nextjs\");\n    if (combinedText.includes(\"vite\")) tags.push(\"vite\");\n    if (combinedText.includes(\"tailwind\")) tags.push(\"tailwind\");\n    if (combinedText.includes(\"security\")) tags.push(\"security\");\n    if (combinedText.includes(\"performance\")) tags.push(\"performance\");\n    if (combinedText.includes(\"compiler\")) tags.push(\"compiler\");\n    if (combinedText.includes(\"turbopack\")) tags.push(\"turbopack\");\n    if (combinedText.includes(\"server component\")) tags.push(\"server-components\");\n    if (combinedText.includes(\"cache\")) tags.push(\"cache\");\n    if (combinedText.includes(\"database\")) tags.push(\"database\");\n    if (combinedText.includes(\"postgres\")) tags.push(\"postgres\");\n    if (combinedText.includes(\"supabase\")) tags.push(\"supabase\");\n\n    return {\n      json: {\n        ...article,\n        category,\n        tags,\n        score\n      }\n    };\n  })\n  .filter(Boolean)\n  .sort((a, b) => b.json.score - a.json.score);"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -491,6 +491,40 @@
       ],
       "id": "6099df27-eacc-43e0-b4a3-f6a5fc41b75b",
       "name": "Filter Weak Articles"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM discoveries;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1968,
+        320
+      ],
+      "id": "1c441177-6f0a-4064-8117-9c05517c29b1",
+      "name": "Clear Discoveries Table",
+      "credentials": {
+        "postgres": {
+          "id": "qKU0Tc69L4alq44T",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2224,
+        -96
+      ],
+      "id": "259a8f93-6e79-4060-9696-bdd1b8644f3c",
+      "name": "Merge1"
     }
   ],
   "pinData": {},
@@ -548,7 +582,12 @@
       "main": [
         [
           {
-            "node": "Insert rows in a table",
+            "node": "Clear Discoveries Table",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
             "type": "main",
             "index": 0
           }
@@ -656,6 +695,28 @@
           }
         ]
       ]
+    },
+    "Clear Discoveries Table": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -664,7 +725,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "741dfac4-a758-4535-a14d-0265a46cc01e",
+  "versionId": "5e40ed39-c533-493e-afff-ba20bafeacd9",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"

@@ -5,10 +5,7 @@
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [
-        -288,
-        848
-      ],
+      "position": [-288, 848],
       "id": "17295e98-3318-47d5-9152-ebed035dae39",
       "name": "When clicking ‘Execute workflow’"
     },
@@ -23,10 +20,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        336,
-        736
-      ],
+      "position": [336, 736],
       "id": "724ad471-7d11-45db-89db-3085657e3159",
       "name": "HTTP Request4"
     },
@@ -36,10 +30,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        2016,
-        1216
-      ],
+      "position": [2016, 1216],
       "id": "2ed55a0e-0cdd-4aed-9891-4d931329c623",
       "name": "Code in JavaScript8"
     },
@@ -54,25 +45,19 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        2336,
-        976
-      ],
+      "position": [2336, 976],
       "id": "51ebfefc-0fe0-4fca-ba07-9c7112a21f2c",
       "name": "HTTP Request5"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT title, url, source, link_label AS \"linkLabel\"\nFROM discoveries\nORDER BY id DESC\nLIMIT 8;",
+        "query": "SELECT\n  title,\n  url,\n  source,\n  link_label AS \"linkLabel\",\n  score,\n  category,\n  summary\nFROM discoveries\nORDER BY score DESC\nLIMIT 15;",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
-      "position": [
-        80,
-        784
-      ],
+      "position": [80, 784],
       "id": "f2091c5c-4858-4d75-80bf-f800faf1c0b5",
       "name": "Execute a SQL query1",
       "credentials": {
@@ -101,9 +86,7 @@
             "html_content": "={{ $json.html }}",
             "linkedin_post": "={{ $json.linkedin_post }}"
           },
-          "matchingColumns": [
-            "id"
-          ],
+          "matchingColumns": ["id"],
           "schema": [
             {
               "id": "id",
@@ -152,10 +135,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
-      "position": [
-        2640,
-        1120
-      ],
+      "position": [2640, 1120],
       "id": "d34412bc-1a08-4a61-b910-de4478282437",
       "name": "Insert rows in a table1",
       "credentials": {
@@ -176,10 +156,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        768,
-        896
-      ],
+      "position": [768, 896],
       "id": "871a8c2f-be66-413a-8b47-3fb2cccc50b7",
       "name": "HTTP Request6",
       "alwaysOutputData": false
@@ -190,10 +167,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        784,
-        640
-      ],
+      "position": [784, 640],
       "id": "c7b6d73d-2319-4532-956a-9e56fa44586a",
       "name": "Code in JavaScript9"
     },
@@ -203,10 +177,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        368,
-        1040
-      ],
+      "position": [368, 1040],
       "id": "db1d6347-45a2-4290-bcda-05036e634aca",
       "name": "Preserve Draft1"
     },
@@ -237,10 +208,7 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [
-        1072,
-        1264
-      ],
+      "position": [1072, 1264],
       "id": "6b8d1729-89ab-46ec-9635-83ca3772bfa5",
       "name": "If1"
     },
@@ -250,10 +218,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        832,
-        1184
-      ],
+      "position": [832, 1184],
       "id": "a244f8e3-60f2-44a2-b65d-cfd30180d51b",
       "name": "Parse Evaluation1"
     },
@@ -263,10 +228,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1296,
-        1088
-      ],
+      "position": [1296, 1088],
       "id": "0d5eafb2-bf21-49e0-97fd-5891c313a5d6",
       "name": "Build Refinement Prompt1"
     },
@@ -281,10 +243,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        1472,
-        992
-      ],
+      "position": [1472, 992],
       "id": "675a74fe-e4f5-410b-b0f6-fd3d6834bd36",
       "name": "HTTP Request7"
     },
@@ -294,10 +253,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1680,
-        1024
-      ],
+      "position": [1680, 1024],
       "id": "8173b2bc-af40-4acb-992a-042a79183b93",
       "name": "Code in JavaScript10"
     },
@@ -307,10 +263,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1280,
-        1312
-      ],
+      "position": [1280, 1312],
       "id": "1cc4ce76-25fd-46c2-af58-4136e00937f6",
       "name": "Code in JavaScript11"
     },
@@ -318,10 +271,7 @@
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [
-        1616,
-        1296
-      ],
+      "position": [1616, 1296],
       "id": "20321bbb-96ac-4ea6-b030-8cc837a5de6b",
       "name": "Merge1"
     },
@@ -331,10 +281,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        976,
-        960
-      ],
+      "position": [976, 960],
       "id": "5025fecb-77ed-49a9-a71e-9e44bf58fd88",
       "name": "Code in JavaScript12"
     },
@@ -348,10 +295,7 @@
       },
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
-      "position": [
-        2848,
-        1248
-      ],
+      "position": [2848, 1248],
       "id": "2976ba73-921a-4adc-8db7-6095917b0e63",
       "name": "Send an Email1",
       "webhookId": "37d6db3c-843e-4ffb-9ec4-f7698543b2c4",
@@ -368,10 +312,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        2144,
-        928
-      ],
+      "position": [2144, 928],
       "id": "f152aa4c-fb4a-4ed3-a107-5673c893ac9d",
       "name": "Code in JavaScript13"
     },
@@ -381,23 +322,17 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        80,
-        1024
-      ],
+      "position": [80, 1024],
       "id": "6a1baf07-7280-4c5a-9556-e636a770fbda",
       "name": "Code in JavaScript"
     },
     {
       "parameters": {
-        "jsCode": "const articles = $(\"Code in JavaScript\").all().map(item => item.json);\n\nconst grouped = articles.map((a, i) => `\n${i + 1}. ${a.title}\nSource: ${a.source}\nURL: ${a.url}\n`).join('\\n');\n\nconst prompt = `\nYou are writing a high-performing LinkedIn post for Elegant Frontend.\n\nUse the discoveries below:\n\n${grouped}\n\nWrite a concise LinkedIn post for frontend developers and technical founders.\n\nRules:\n- Start with a strong hook\n- Use 2-3 short paragraphs\n- Include 3 bullet points\n- End with a question\n- Add 3-5 relevant hashtags\n- Professional tone\n- Avoid sounding like marketing fluff\n- Focus on trends, shifts, and what developers should care about\n- Maximum 220 words\n- No emojis\n- No markdown\n- Return plain text only\n\nExample style:\n\nFrontend tools are moving away from bloated “AI everywhere” experiences.\n\nThis week:\n• Teams focused on privacy-first workflows\n• Developers wanted faster local tooling\n• AI products became more workflow-driven\n\nThe strongest products are becoming simpler, not bigger.\n\nWhich trend matters most to you?\n\n#frontend #webdev #ai\n`;\n\nreturn [{\n  json: {\n    prompt,\n    finalDraft: $json.finalDraft,\n    wasRefined: $json.wasRefined\n  }\n}];"
+        "jsCode": "const articles = $(\"Code in JavaScript\").all().map(item => item.json);\n\nconst grouped = articles.map((a, i) => `\n${i + 1}. TITLE: ${a.title}\nSOURCE: ${a.source}\nURL: ${a.url}\nLINK_LABEL: ${a.linkLabel || \"Read More\"}\n`).join('\\n');\n\nconst prompt = `\nYou are writing a high-performing LinkedIn post for Elegant Frontend.\n\nUse the discoveries below:\n\n${grouped}\n\nWrite a concise LinkedIn post for frontend developers, technical founders, and engineering leaders.\n\nSTRICT RULES:\n\n- Start with a strong hook in the first sentence\n- Use short paragraphs only\n- Mention at least 2 real tools, products, companies, or technologies by name from the titles above\n- Mention at most 4 named products/tools\n- Include exactly 3 bullet points\n- You MUST format the 3 key takeaways as bullet points starting with •\n- Each bullet point should be one short sentence only\n- Explain why these tools or trends matter\n- Focus on shifts in developer behavior, tooling, AI workflows, privacy, speed, and product simplicity\n- Avoid generic phrases like \"AI everywhere\", \"the future is bright\", \"things are changing\", or \"technology is evolving\"\n- Avoid vague statements with no examples\n- End with a short takeaway paragraph\n- End with a CTA question\n- End with exactly these hashtags on the final line:\n#frontend #webdev #ai\n- Professional tone\n- No emojis\n- No markdown\n- Maximum 220 words\n- Return plain text only\n\nGood example style:\n\nFrontend teams are becoming more selective about the tools they adopt.\n\nThis week, products like Marco and Looseleaf highlighted a shift toward privacy-first workflows and faster local tooling. Developers are prioritizing tools that feel simpler, faster, and easier to integrate into existing workflows.\n\n• Marco shows that privacy-first products are becoming more important\n• Looseleaf reflects demand for more flexible developer tooling\n• TailorToJob highlights how AI is being used for practical workflows instead of hype\n\nThe strongest developer tools are becoming simpler, not bigger.\n\nWhich trend do you think will matter most this year?\n\n#frontend #webdev #ai\n`;\n\nreturn [{\n  json: {\n    prompt,\n    finalDraft: $json.finalDraft,\n    wasRefined: $json.wasRefined\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1856,
-        1408
-      ],
+      "position": [1856, 1408],
       "id": "c441374f-6081-4752-92e9-ac0e93ef8bbf",
       "name": "Build LinkedIn Prompt"
     },
@@ -412,23 +347,17 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        2048,
-        1488
-      ],
+      "position": [2048, 1488],
       "id": "8cf10a7b-e1f1-4911-8580-6ce0e09cc39b",
       "name": "HTTP Request"
     },
     {
       "parameters": {
-        "jsCode": "const linkedinPost = $json.response || \"LinkedIn post generation failed.\";\n\nreturn [{\n  json: {\n    linkedin_post: linkedinPost,\n    finalDraft: $node[\"Merge1\"].json.finalDraft,\n    wasRefined: $node[\"Merge1\"].json.wasRefined\n  }\n}];"
+        "jsCode": "let linkedinPost = $json.response || \"LinkedIn post generation failed.\";\n\nif (!linkedinPost.includes(\"#frontend\")) {\n  linkedinPost += \"\\n\\n#frontend #webdev #ai\";\n}\n\nreturn [{\n  json: {\n    linkedin_post: linkedinPost,\n    finalDraft: $node[\"Merge1\"].json.finalDraft,\n    wasRefined: $node[\"Merge1\"].json.wasRefined,\n    slack_preview: {\n      text: \"LinkedIn Post Draft\",\n      blocks: [\n        {\n          type: \"header\",\n          text: {\n            type: \"plain_text\",\n            text: \"LinkedIn Post Draft\"\n          }\n        },\n        {\n          type: \"section\",\n          text: {\n            type: \"mrkdwn\",\n            text: `*LinkedIn Post Draft*\\n\\n${linkedinPost}`\n          }\n        }\n      ]\n    }\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        2240,
-        1440
-      ],
+      "position": [2240, 1440],
       "id": "397565ed-86f9-4c2d-81c9-8b998247e3c7",
       "name": "Format LinkedIn Output"
     },
@@ -438,10 +367,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        2464,
-        1488
-      ],
+      "position": [2464, 1488],
       "id": "1a503613-c150-4bba-8c79-3f5eebb607d6",
       "name": "Build LinkedIn Slack Preview"
     },
@@ -456,10 +382,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        2672,
-        1488
-      ],
+      "position": [2672, 1488],
       "id": "2cac4283-29b7-4596-86fb-6ed7c1f20456",
       "name": "HTTP Request1"
     },
@@ -471,10 +394,7 @@
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [
-        2416,
-        1296
-      ],
+      "position": [2416, 1296],
       "id": "b5ff6bfa-62d4-4113-9040-319e00386158",
       "name": "Merge"
     }
@@ -758,7 +678,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "bfea4d6d-37b9-48dd-abd0-0d2c0bf6ceb5",
+  "versionId": "8921d0af-2543-4141-a831-17b8358a406d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
