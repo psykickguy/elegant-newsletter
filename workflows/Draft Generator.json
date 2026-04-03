@@ -5,7 +5,7 @@
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [-288, 848],
+      "position": [-224, 1024],
       "id": "17295e98-3318-47d5-9152-ebed035dae39",
       "name": "When clicking ‘Execute workflow’"
     },
@@ -20,7 +20,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [336, 736],
+      "position": [64, 1264],
       "id": "724ad471-7d11-45db-89db-3085657e3159",
       "name": "HTTP Request4"
     },
@@ -30,24 +30,9 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2016, 1216],
+      "position": [1904, 512],
       "id": "2ed55a0e-0cdd-4aed-9891-4d931329c623",
       "name": "Code in JavaScript8"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json) }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [2336, 976],
-      "id": "51ebfefc-0fe0-4fca-ba07-9c7112a21f2c",
-      "name": "HTTP Request5"
     },
     {
       "parameters": {
@@ -84,7 +69,9 @@
           "mappingMode": "defineBelow",
           "value": {
             "html_content": "={{ $json.html }}",
-            "linkedin_post": "={{ $json.linkedin_post }}"
+            "linkedin_post": "={{ $json.linkedin_post }}",
+            "linkedin_carousel_text": "={{ $json.linkedin_carousel_text }}",
+            "linkedin_carousel_json": "={{ JSON.stringify($json.linkedin_carousel_json) }}"
           },
           "matchingColumns": ["id"],
           "schema": [
@@ -126,6 +113,86 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "newsletter_title",
+              "displayName": "newsletter_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "newsletter_markdown",
+              "displayName": "newsletter_markdown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slack_summary",
+              "displayName": "slack_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "carousel_copy",
+              "displayName": "carousel_copy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "trend_json",
+              "displayName": "trend_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "issue_date",
+              "displayName": "issue_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "linkedin_carousel_json",
+              "displayName": "linkedin_carousel_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "linkedin_carousel_text",
+              "displayName": "linkedin_carousel_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -135,7 +202,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
-      "position": [2640, 1120],
+      "position": [3264, 912],
       "id": "d34412bc-1a08-4a61-b910-de4478282437",
       "name": "Insert rows in a table1",
       "credentials": {
@@ -156,7 +223,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [768, 896],
+      "position": [368, 1264],
       "id": "871a8c2f-be66-413a-8b47-3fb2cccc50b7",
       "name": "HTTP Request6",
       "alwaysOutputData": false
@@ -167,7 +234,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [784, 640],
+      "position": [384, 1040],
       "id": "c7b6d73d-2319-4532-956a-9e56fa44586a",
       "name": "Code in JavaScript9"
     },
@@ -177,7 +244,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [368, 1040],
+      "position": [416, 784],
       "id": "db1d6347-45a2-4290-bcda-05036e634aca",
       "name": "Preserve Draft1"
     },
@@ -208,7 +275,7 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [1072, 1264],
+      "position": [736, 1264],
       "id": "6b8d1729-89ab-46ec-9635-83ca3772bfa5",
       "name": "If1"
     },
@@ -218,7 +285,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [832, 1184],
+      "position": [752, 1024],
       "id": "a244f8e3-60f2-44a2-b65d-cfd30180d51b",
       "name": "Parse Evaluation1"
     },
@@ -228,7 +295,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1296, 1088],
+      "position": [1072, 864],
       "id": "0d5eafb2-bf21-49e0-97fd-5891c313a5d6",
       "name": "Build Refinement Prompt1"
     },
@@ -243,7 +310,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [1472, 992],
+      "position": [1328, 688],
       "id": "675a74fe-e4f5-410b-b0f6-fd3d6834bd36",
       "name": "HTTP Request7"
     },
@@ -253,7 +320,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1680, 1024],
+      "position": [1360, 912],
       "id": "8173b2bc-af40-4acb-992a-042a79183b93",
       "name": "Code in JavaScript10"
     },
@@ -263,7 +330,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1280, 1312],
+      "position": [1088, 1072],
       "id": "1cc4ce76-25fd-46c2-af58-4136e00937f6",
       "name": "Code in JavaScript11"
     },
@@ -271,7 +338,7 @@
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [1616, 1296],
+      "position": [1376, 1168],
       "id": "20321bbb-96ac-4ea6-b030-8cc837a5de6b",
       "name": "Merge1"
     },
@@ -281,7 +348,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [976, 960],
+      "position": [752, 784],
       "id": "5025fecb-77ed-49a9-a71e-9e44bf58fd88",
       "name": "Code in JavaScript12"
     },
@@ -290,12 +357,12 @@
         "fromEmail": "shubhdas2005@gmail.com",
         "toEmail": "shubhdas2005@gmail.com",
         "subject": "=Frontend Weekly Newsletter – {{$now.format(\"DD\")}}",
-        "html": "={{ $json.html_content }}",
+        "html": "=={{ $json.html_content }}\n\n<hr>\n\n<h2>LinkedIn Post Draft</h2>\n<pre>{{ $json.linkedin_post }}</pre>\n\n<hr>\n\n<h2>LinkedIn Carousel Draft</h2>\n<pre>{{ $json.linkedin_carousel_text }}</pre>",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
-      "position": [2848, 1248],
+      "position": [3472, 912],
       "id": "2976ba73-921a-4adc-8db7-6095917b0e63",
       "name": "Send an Email1",
       "webhookId": "37d6db3c-843e-4ffb-9ec4-f7698543b2c4",
@@ -305,16 +372,6 @@
           "name": "SMTP account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Grab the HTML directly from your template node to be safe\nconst html = $node[\"Code in JavaScript8\"].json.html || \"\";\n\nconst plainText = html\n  .replace(/<h1>/g, \"*\")\n  .replace(/<\\/h1>/g, \"*\\n\")\n  .replace(/<h2>/g, \"\\n\\n*\")\n  .replace(/<\\/h2>/g, \"*\\n\")\n  .replace(/<[^>]+>/g, \"\")\n  .substring(0, 1200);\n\n// Fallback message if something goes wrong\nconst finalMessage = plainText.trim().length > 0 ? plainText : \"Newsletter draft generated but preview is unavailable.\";\n\nreturn [{\n  json: {\n    text: \"Frontend Weekly Draft\",\n    blocks: [\n      {\n        type: \"section\",\n        text: {\n          type: \"mrkdwn\",\n          text: finalMessage\n        }\n      }\n    ]\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [2144, 928],
-      "id": "f152aa4c-fb4a-4ed3-a107-5673c893ac9d",
-      "name": "Code in JavaScript13"
     },
     {
       "parameters": {
@@ -332,7 +389,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1856, 1408],
+      "position": [1744, 1008],
       "id": "c441374f-6081-4752-92e9-ac0e93ef8bbf",
       "name": "Build LinkedIn Prompt"
     },
@@ -347,7 +404,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [2048, 1488],
+      "position": [1920, 896],
       "id": "8cf10a7b-e1f1-4911-8580-6ce0e09cc39b",
       "name": "HTTP Request"
     },
@@ -357,7 +414,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2240, 1440],
+      "position": [2112, 736],
       "id": "397565ed-86f9-4c2d-81c9-8b998247e3c7",
       "name": "Format LinkedIn Output"
     },
@@ -367,7 +424,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2464, 1488],
+      "position": [2192, 944],
       "id": "1a503613-c150-4bba-8c79-3f5eebb607d6",
       "name": "Build LinkedIn Slack Preview"
     },
@@ -382,21 +439,92 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [2672, 1488],
+      "position": [2400, 912],
       "id": "2cac4283-29b7-4596-86fb-6ed7c1f20456",
       "name": "HTTP Request1"
     },
     {
       "parameters": {
+        "jsCode": "const articles = $(\"Code in JavaScript\").all().map(item => item.json);\n\nconst grouped = articles.map((a, i) => `\n${i + 1}. TITLE: ${a.title}\nSOURCE: ${a.source}\nURL: ${a.url}\nLINK_LABEL: ${a.linkLabel || \"Read More\"}\n`).join('\\n');\n\nconst prompt = `\nYou are creating a LinkedIn carousel draft for Elegant Frontend.\n\nImportant: Use only names, products, tools, companies, technologies, and trends that appear in the discovery list below.\n\nUse the discoveries below:\n\n${grouped}\n\nGenerate exactly 6 slides.\n\nStyle requirements:\n\n- The carousel should feel like an analyst trend report\n- Mention real technologies, frameworks, tools, products, and companies from the discoveries\n- Focus on frontend architecture, AI agents, performance, rendering, workflows, privacy, developer experience, tooling, and AI infrastructure\n- Keep each slide highly skimmable\n- Use short bullet-like sentences\n- Avoid generic marketing phrases\n- Avoid sounding like a normal LinkedIn influencer\n- Sound like an expert sharing insights\n- Keep wording concise and premium\n- Use strong, insight-driven language\n- Final slide should include a CTA\n\nSTRICT RULES:\n\n- Return valid JSON only\n- No markdown\n- No explanation text\n- Exactly 6 slides\n- Mention only technologies, products, companies, and tools that appear in the discoveries provided\n- Do not invent new frameworks, libraries, or companies\n- Use exact names from the discoveries whenever possible\n- Mention at least 4 real products/tools from the discoveries\n- Keep slide title under 8 words\n- Keep slide body under 30 words\n- Strong first-slide hook\n- Final slide should include CTA\n- Focus on frontend, AI agents, performance, privacy, workflows, developer experience, and rendering\n- Tone should feel premium, modern, and insightful\n- Avoid generic filler examples like AWS Lambda, Docker, Visual Studio, Adobe XD, IntelliJ, TensorFlow, Gatsby, or Next.js unless they appear in the discoveries\n\nAdditional grounding rules:\n\n- Every slide must reference at least one real company, tool, framework, or product from the discoveries\n- Prefer specific names like OpenClaw, Hermes Agent, Pinterest MCP, Zep AI, Dynamic Workers, Google AI agents\n- Avoid vague phrases like \"new tools\", \"modern workflows\", or \"better performance\"\n- Slide 2 should mention at least one frontend architecture or rendering technology from the discoveries\n- Slide 3 should mention at least one AI agent or workflow automation product from the discoveries\n- Slide 4 should mention at least two real tools or companies from the discoveries\n- Slide 5 should predict future trends using names already present in the discoveries\n\nRequired slide structure:\n\nSlide 1:\nBig title and overview of this week's biggest frontend and AI shifts\n\nSlide 2:\nFrontend Architecture Trends\n\nSlide 3:\nAI Agents Reshaping UI Work\n\nSlide 4:\nEmerging Developer Tooling\n\nSlide 5:\nWhat's Next\n\n- Focus on future trends and predictions\n- Mention persistent AI agents, MCP ecosystems, edge runtimes, server rendering, or AI workflows if present in the discoveries\n- Avoid vague predictions\n- Use real technologies or companies from the discoveries\n\nSlide 6:\nCTA / Follow Elegant Frontend\n\n- End with a strong CTA\n- Mention Elegant Frontend directly\n- Mention frontend architecture, AI agents, or developer tooling\n- Example tone: \"Follow Elegant Frontend for weekly insights on frontend architecture, AI agents, and developer tooling.\"\n\nSlide guidance:\n\n- Slide 2 should focus on frontend architecture changes, rendering, server-side patterns, edge runtimes, caching, or performance\n- Slide 3 should focus on AI agents, MCP ecosystems, OpenClaw, Hermes Agent, Pinterest MCP, Google AI agents, or workflow automation if mentioned\n- Slide 4 should focus on tools, startups, libraries, platforms, or products from the discoveries\n- Slide 5 should focus on predictions, future trends, or major takeaways from the discoveries\n- Slide 6 should end with a strong CTA for Elegant Frontend\n\nReturn valid JSON only.\n\nRequired JSON format:\n\n{\n  \"carousel_title\": \"string\",\n  \"slides\": [\n    {\n      \"slideNumber\": 1,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 2,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 3,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 4,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 5,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 6,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    }\n  ]\n}\n`;\n\nreturn [{\n  json: {\n    prompt,\n    finalDraft: $json.finalDraft,\n    wasRefined: $json.wasRefined\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1696, 1216],
+      "id": "a6d98048-29ed-45dc-9f20-285bde37f256",
+      "name": "Build Carousel Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2:3b\",\n  \"prompt\": {{ JSON.stringify($json.prompt) }},\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [1936, 1168],
+      "id": "883fe2ba-c3de-4464-9015-c27b785a336c",
+      "name": "HTTP Request Carousel"
+    },
+    {
+      "parameters": {
+        "jsCode": "let rawResponse = $json.response || \"\";\n\n// Remove everything before first {\nconst firstBraceIndex = rawResponse.indexOf(\"{\");\n\nif (firstBraceIndex !== -1) {\n  rawResponse = rawResponse.slice(firstBraceIndex);\n}\n\n// Remove markdown wrappers\nrawResponse = rawResponse\n  .replace(/```json/g, \"\")\n  .replace(/```/g, \"\")\n  .trim();\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(rawResponse);\n} catch (error) {\n  parsed = {\n    carousel_title: \"Frontend Trends This Week\",\n    slides: [\n      {\n        slideNumber: 1,\n        title: \"Frontend Trends\",\n        body: \"The biggest shifts in frontend and AI this week.\"\n      },\n      {\n        slideNumber: 2,\n        title: \"Privacy Tools\",\n        body: \"Marco shows privacy-first products are becoming more important.\"\n      },\n      {\n        slideNumber: 3,\n        title: \"Notebook Workflows\",\n        body: \"Looseleaf reflects demand for flexible developer workflows.\"\n      },\n      {\n        slideNumber: 4,\n        title: \"AI Creation\",\n        body: \"TailorToJob shows AI is helping non-developers create faster.\"\n      },\n      {\n        slideNumber: 5,\n        title: \"Big Shift\",\n        body: \"Developers want tools that are simpler and more focused.\"\n      },\n      {\n        slideNumber: 6,\n        title: \"Follow Elegant\",\n        body: \"Follow Elegant Frontend for weekly frontend insights.\"\n      }\n    ]\n  };\n}\n\nconst carouselText = parsed.slides.map(slide => {\n  return `Slide ${slide.slideNumber}\n${slide.title}\n${slide.body}`;\n}).join(\"\\n\\n------------------\\n\\n\");\n\nreturn [{\n  json: {\n    linkedin_carousel_json: parsed,\n    linkedin_carousel_text: carouselText,\n    finalDraft: $node[\"Merge1\"].json.finalDraft,\n    wasRefined: $node[\"Merge1\"].json.wasRefined\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2144, 1184],
+      "id": "70b2c033-8f68-48e3-9ce1-68326d66f783",
+      "name": "Format Carousel Output"
+    },
+    {
+      "parameters": {
+        "jsCode": "const slides = $json.linkedin_carousel_json.slides || [];\nconst issues = $json.carousel_validation_issues || [];\nconst isValid = $json.carousel_valid;\n\nconst blocks = [\n  {\n    type: \"header\",\n    text: {\n      type: \"plain_text\",\n      text: \"LinkedIn Carousel Draft\"\n    }\n  },\n  {\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Carousel Valid:* ${isValid ? \"Yes\" : \"No\"}`\n    }\n  }\n];\n\nif (issues.length > 0) {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Issues Found:*\\n${issues.map(issue => `• ${issue}`).join(\"\\n\")}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n}\n\nslides.forEach(slide => {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Slide ${slide.slideNumber}: ${slide.title}*\\n${slide.body}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n});\n\nreturn [{\n  json: {\n    text: \"LinkedIn Carousel Draft\",\n    blocks\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2560, 1136],
+      "id": "a14b6dda-00b3-46e1-b3e1-1466b190d326",
+      "name": "Build Carousel Slack Preview"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [2768, 1088],
+      "id": "036e9106-bf55-4ba4-bd63-78ff8d001db1",
+      "name": "HTTP Request Carousel Slack"
+    },
+    {
+      "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
+        "numberInputs": 3,
         "options": {}
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [2416, 1296],
-      "id": "b5ff6bfa-62d4-4113-9040-319e00386158",
-      "name": "Merge"
+      "position": [3024, 896],
+      "id": "00fbca27-fac2-45ce-a150-290b24b3e021",
+      "name": "Merge HTML + LinkedIn + Carousel"
+    },
+    {
+      "parameters": {
+        "jsCode": "const carousel = $json.linkedin_carousel_json;\n\nlet issues = [];\n\nif (!carousel?.slides || carousel.slides.length !== 6) {\n  issues.push(\"Carousel does not contain exactly 6 slides.\");\n}\n\ncarousel?.slides?.forEach((slide, index) => {\n  if (!slide.title || slide.title.trim() === \"\") {\n    issues.push(`Slide ${index + 1} is missing a title.`);\n  }\n\n  if (!slide.body || slide.body.trim() === \"\") {\n    issues.push(`Slide ${index + 1} is missing a body.`);\n  }\n\n  const wordCount = slide.body.split(/\\s+/).length;\n\n  if (wordCount > 30) {\n    issues.push(`Slide ${index + 1} body exceeds 30 words.`);\n  }\n});\n\nreturn [{\n  json: {\n    ...$json,\n    carousel_validation_issues: issues,\n    carousel_valid: issues.length === 0\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2352, 1184],
+      "id": "9259a95f-1a9d-4e90-83e6-a8888262e7a5",
+      "name": "Validate Carousel Output"
     }
   ],
   "pinData": {},
@@ -427,7 +555,7 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Merge HTML + LinkedIn + Carousel",
             "type": "main",
             "index": 0
           }
@@ -574,6 +702,11 @@
             "node": "Build LinkedIn Prompt",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Build Carousel Prompt",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -583,17 +716,6 @@
         [
           {
             "node": "Parse Evaluation1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript13": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request5",
             "type": "main",
             "index": 0
           }
@@ -642,7 +764,7 @@
             "index": 0
           },
           {
-            "node": "Merge",
+            "node": "Merge HTML + LinkedIn + Carousel",
             "type": "main",
             "index": 1
           }
@@ -660,11 +782,77 @@
         ]
       ]
     },
-    "Merge": {
+    "Build Carousel Prompt": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Carousel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Carousel": {
+      "main": [
+        [
+          {
+            "node": "Format Carousel Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Carousel Output": {
+      "main": [
+        [
+          {
+            "node": "Validate Carousel Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Carousel Slack Preview": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Carousel Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Carousel Slack": {
+      "main": [
+        [
+          {
+            "node": "Merge HTML + LinkedIn + Carousel",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge HTML + LinkedIn + Carousel": {
       "main": [
         [
           {
             "node": "Insert rows in a table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Carousel Output": {
+      "main": [
+        [
+          {
+            "node": "Build Carousel Slack Preview",
             "type": "main",
             "index": 0
           }
@@ -678,7 +866,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "8921d0af-2543-4141-a831-17b8358a406d",
+  "versionId": "a9fa2716-d0e5-4274-b023-581f9a2a9329",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
