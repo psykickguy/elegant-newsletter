@@ -5,7 +5,7 @@
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [-224, 1024],
+      "position": [-464, 1680],
       "id": "17295e98-3318-47d5-9152-ebed035dae39",
       "name": "When clicking ‘Execute workflow’"
     },
@@ -20,7 +20,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [64, 1264],
+      "position": [160, 976],
       "id": "724ad471-7d11-45db-89db-3085657e3159",
       "name": "HTTP Request4"
     },
@@ -42,7 +42,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
-      "position": [80, 784],
+      "position": [-256, 1584],
       "id": "f2091c5c-4858-4d75-80bf-f800faf1c0b5",
       "name": "Execute a SQL query1",
       "credentials": {
@@ -71,7 +71,8 @@
             "html_content": "={{ $json.html }}",
             "linkedin_post": "={{ $json.linkedin_post }}",
             "linkedin_carousel_text": "={{ $json.linkedin_carousel_text }}",
-            "linkedin_carousel_json": "={{ JSON.stringify($json.linkedin_carousel_json) }}"
+            "linkedin_carousel_json": "={{$json.linkedin_carousel_json}}",
+            "linkedin_carousel_visual_json": "={{$json.linkedin_carousel_visual_json}}"
           },
           "matchingColumns": ["id"],
           "schema": [
@@ -191,6 +192,16 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "linkedin_carousel_visual_json",
+              "displayName": "linkedin_carousel_visual_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
               "canBeUsedToMatch": true,
               "removed": false
             }
@@ -357,7 +368,7 @@
         "fromEmail": "shubhdas2005@gmail.com",
         "toEmail": "shubhdas2005@gmail.com",
         "subject": "=Frontend Weekly Newsletter – {{$now.format(\"DD\")}}",
-        "html": "=={{ $json.html_content }}\n\n<hr>\n\n<h2>LinkedIn Post Draft</h2>\n<pre>{{ $json.linkedin_post }}</pre>\n\n<hr>\n\n<h2>LinkedIn Carousel Draft</h2>\n<pre>{{ $json.linkedin_carousel_text }}</pre>",
+        "html": "=={{ $json.html_content }}\n\n<hr>\n\n<h2>LinkedIn Post Draft</h2>\n<pre>{{ $json.linkedin_post }}</pre>\n\n<hr>\n\n<h2>LinkedIn Carousel Draft</h2>\n<pre>{{ $json.linkedin_carousel_text }}</pre>\n\n<hr>\n\n<h2>LinkedIn Carousel Visual Draft</h2>\n<pre>{{ JSON.stringify($json.linkedin_carousel_visual_json, null, 2) }}</pre>",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
@@ -379,7 +390,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [80, 1024],
+      "position": [-48, 1280],
       "id": "6a1baf07-7280-4c5a-9556-e636a770fbda",
       "name": "Code in JavaScript"
     },
@@ -445,7 +456,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const articles = $(\"Code in JavaScript\").all().map(item => item.json);\n\nconst grouped = articles.map((a, i) => `\n${i + 1}. TITLE: ${a.title}\nSOURCE: ${a.source}\nURL: ${a.url}\nLINK_LABEL: ${a.linkLabel || \"Read More\"}\n`).join('\\n');\n\nconst prompt = `\nYou are creating a LinkedIn carousel draft for Elegant Frontend.\n\nImportant: Use only names, products, tools, companies, technologies, and trends that appear in the discovery list below.\n\nUse the discoveries below:\n\n${grouped}\n\nGenerate exactly 6 slides.\n\nStyle requirements:\n\n- The carousel should feel like an analyst trend report\n- Mention real technologies, frameworks, tools, products, and companies from the discoveries\n- Focus on frontend architecture, AI agents, performance, rendering, workflows, privacy, developer experience, tooling, and AI infrastructure\n- Keep each slide highly skimmable\n- Use short bullet-like sentences\n- Avoid generic marketing phrases\n- Avoid sounding like a normal LinkedIn influencer\n- Sound like an expert sharing insights\n- Keep wording concise and premium\n- Use strong, insight-driven language\n- Final slide should include a CTA\n\nSTRICT RULES:\n\n- Return valid JSON only\n- No markdown\n- No explanation text\n- Exactly 6 slides\n- Mention only technologies, products, companies, and tools that appear in the discoveries provided\n- Do not invent new frameworks, libraries, or companies\n- Use exact names from the discoveries whenever possible\n- Mention at least 4 real products/tools from the discoveries\n- Keep slide title under 8 words\n- Keep slide body under 30 words\n- Strong first-slide hook\n- Final slide should include CTA\n- Focus on frontend, AI agents, performance, privacy, workflows, developer experience, and rendering\n- Tone should feel premium, modern, and insightful\n- Avoid generic filler examples like AWS Lambda, Docker, Visual Studio, Adobe XD, IntelliJ, TensorFlow, Gatsby, or Next.js unless they appear in the discoveries\n\nAdditional grounding rules:\n\n- Every slide must reference at least one real company, tool, framework, or product from the discoveries\n- Prefer specific names like OpenClaw, Hermes Agent, Pinterest MCP, Zep AI, Dynamic Workers, Google AI agents\n- Avoid vague phrases like \"new tools\", \"modern workflows\", or \"better performance\"\n- Slide 2 should mention at least one frontend architecture or rendering technology from the discoveries\n- Slide 3 should mention at least one AI agent or workflow automation product from the discoveries\n- Slide 4 should mention at least two real tools or companies from the discoveries\n- Slide 5 should predict future trends using names already present in the discoveries\n\nRequired slide structure:\n\nSlide 1:\nBig title and overview of this week's biggest frontend and AI shifts\n\nSlide 2:\nFrontend Architecture Trends\n\nSlide 3:\nAI Agents Reshaping UI Work\n\nSlide 4:\nEmerging Developer Tooling\n\nSlide 5:\nWhat's Next\n\n- Focus on future trends and predictions\n- Mention persistent AI agents, MCP ecosystems, edge runtimes, server rendering, or AI workflows if present in the discoveries\n- Avoid vague predictions\n- Use real technologies or companies from the discoveries\n\nSlide 6:\nCTA / Follow Elegant Frontend\n\n- End with a strong CTA\n- Mention Elegant Frontend directly\n- Mention frontend architecture, AI agents, or developer tooling\n- Example tone: \"Follow Elegant Frontend for weekly insights on frontend architecture, AI agents, and developer tooling.\"\n\nSlide guidance:\n\n- Slide 2 should focus on frontend architecture changes, rendering, server-side patterns, edge runtimes, caching, or performance\n- Slide 3 should focus on AI agents, MCP ecosystems, OpenClaw, Hermes Agent, Pinterest MCP, Google AI agents, or workflow automation if mentioned\n- Slide 4 should focus on tools, startups, libraries, platforms, or products from the discoveries\n- Slide 5 should focus on predictions, future trends, or major takeaways from the discoveries\n- Slide 6 should end with a strong CTA for Elegant Frontend\n\nReturn valid JSON only.\n\nRequired JSON format:\n\n{\n  \"carousel_title\": \"string\",\n  \"slides\": [\n    {\n      \"slideNumber\": 1,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 2,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 3,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 4,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 5,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    },\n    {\n      \"slideNumber\": 6,\n      \"title\": \"string\",\n      \"body\": \"string\"\n    }\n  ]\n}\n`;\n\nreturn [{\n  json: {\n    prompt,\n    finalDraft: $json.finalDraft,\n    wasRefined: $json.wasRefined\n  }\n}];"
+        "jsCode": "const articles = items.map(item => item.json);\n\nconst grouped = articles.map((a, i) => `\n${i + 1}. TITLE: ${a.title}\nSOURCE: ${a.source}\nURL: ${a.url}\nLINK_LABEL: ${a.linkLabel || \"Read More\"}\n`).join('\\n');\n\nconst prompt = `\nYou are creating a LinkedIn carousel draft for Elegant Frontend.\n\nImportant: Use only names, products, tools, companies, technologies, and trends that appear in the discovery list below.\n\nUse the discoveries below:\n\n${grouped}\n\nGenerate exactly 6 slides.\n\nStyle requirements:\n\n- The carousel should feel like an analyst trend report\n- Mention real technologies, frameworks, tools, products, and companies from the discoveries\n- Focus on frontend architecture, AI agents, performance, rendering, workflows, privacy, developer experience, tooling, and AI infrastructure\n- Keep each slide highly skimmable\n- Use short bullet-like sentences\n- Avoid generic marketing phrases\n- Avoid sounding like a normal LinkedIn influencer\n- Sound like an expert sharing insights\n- Keep wording concise and premium\n- Use strong, insight-driven language\n- Final slide should include a CTA\n\nSTRICT RULES:\n\n- Return valid JSON only\n- No markdown\n- No explanation text\n- Exactly 6 slides\n- Mention only technologies, products, companies, and tools that appear in the discoveries provided\n- Do not invent new frameworks, libraries, or companies\n- Use exact names from the discoveries whenever possible\n- Mention at least 4 real products/tools from the discoveries\n- Keep slide title under 8 words\n- Keep slide body under 30 words\n- Strong first-slide hook\n- Final slide should include CTA\n- Focus on frontend, AI agents, performance, privacy, workflows, developer experience, and rendering\n- Tone should feel premium, modern, and insightful\n- Avoid generic filler examples like AWS Lambda, Docker, Visual Studio, Adobe XD, IntelliJ, TensorFlow, Gatsby, or Next.js unless they appear in the discoveries\n\nVisual metadata rules:\n\n- Each slide must include an imagePrompt\n- imagePrompt should describe a futuristic, minimal, premium visual\n- Each slide must include an icon\n- Icon should match the topic of the slide\n- Each slide must include a theme\n- Use only theme values from the approved list\n- Each slide must include an accentColor in hex format\n- Each slide must include a layout\n- Use only layout values from the approved list\n- Keep visual style modern, premium, dark-mode friendly, and LinkedIn-ready\n\nApproved themes:\n- dark blue gradient\n- black and purple neon\n- minimal white and gray\n- dark glassmorphism\n- futuristic cyan glow\n- midnight AI theme\n- modern fintech dark\n\nApproved icons:\n- server\n- cpu\n- bot\n- workflow\n- cloud\n- shield\n- lightning\n- database\n- code\n- rocket\n- layers\n- sparkles\n- brain\n- monitor\n- network\n\nApproved layouts:\n- title-top text-bottom\n- split-left-text-right-image\n- centered-title-centered-body\n- title-top-icon-center\n- full-background-image-overlay-text\n- title-left-body-right\n\nApproved accent colors:\n- #3B82F6\n- #8B5CF6\n- #06B6D4\n- #10B981\n- #F59E0B\n- #EF4444\n- #6366F1\n- #14B8A6\n\nAdditional grounding rules:\n\n- Every slide must reference at least one real company, tool, framework, or product from the discoveries\n- Prefer specific names like OpenClaw, Hermes Agent, Pinterest MCP, Zep AI, Dynamic Workers, Google AI agents\n- Avoid vague phrases like \"new tools\", \"modern workflows\", or \"better performance\"\n- Slide 2 should mention at least one frontend architecture or rendering technology from the discoveries\n- Slide 3 should mention at least one AI agent or workflow automation product from the discoveries\n- Slide 4 should mention at least two real tools or companies from the discoveries\n- Slide 5 should predict future trends using names already present in the discoveries\n\nRequired slide structure:\n\nSlide 1:\nBig title and overview of this week's biggest frontend and AI shifts\n\nSlide 2:\nFrontend Architecture Trends\n\nSlide 3:\nAI Agents Reshaping UI Work\n\nSlide 4:\nEmerging Developer Tooling\n\nSlide 5:\nWhat's Next\n\n- Focus on future trends and predictions\n- Mention persistent AI agents, MCP ecosystems, edge runtimes, server rendering, or AI workflows if present in the discoveries\n- Avoid vague predictions\n- Use real technologies or companies from the discoveries\n\nSlide 6:\nCTA / Follow Elegant Frontend\n\n- End with a strong CTA\n- Mention Elegant Frontend directly\n- Mention frontend architecture, AI agents, or developer tooling\n- Example tone: \"Follow Elegant Frontend for weekly insights on frontend architecture, AI agents, and developer tooling.\"\n\nSlide guidance:\n\n- Slide 2 should focus on frontend architecture changes, rendering, server-side patterns, edge runtimes, caching, or performance\n- Slide 3 should focus on AI agents, MCP ecosystems, OpenClaw, Hermes Agent, Pinterest MCP, Google AI agents, or workflow automation if mentioned\n- Slide 4 should focus on tools, startups, libraries, platforms, or products from the discoveries\n- Slide 5 should focus on predictions, future trends, or major takeaways from the discoveries\n- Slide 6 should end with a strong CTA for Elegant Frontend\n\nReturn valid JSON only.\n\nRequired JSON format:\n\n{\n  \"carousel_title\": \"string\",\n  \"slides\": [\n    {\n      \"slideNumber\": 1,\n      \"title\": \"string\",\n      \"body\": \"string\",\n      \"imagePrompt\": \"string\",\n      \"icon\": \"string\",\n      \"theme\": \"string\",\n      \"accentColor\": \"string\",\n      \"layout\": \"string\"\n    },\n    {\n      \"slideNumber\": 2,\n      \"title\": \"string\",\n      \"body\": \"string\",\n      \"imagePrompt\": \"string\",\n      \"icon\": \"string\",\n      \"theme\": \"string\",\n      \"accentColor\": \"string\",\n      \"layout\": \"string\"\n    },\n    {\n      \"slideNumber\": 3,\n      \"title\": \"string\",\n      \"body\": \"string\",\n      \"imagePrompt\": \"string\",\n      \"icon\": \"string\",\n      \"theme\": \"string\",\n      \"accentColor\": \"string\",\n      \"layout\": \"string\"\n    },\n    {\n      \"slideNumber\": 4,\n      \"title\": \"string\",\n      \"body\": \"string\",\n      \"imagePrompt\": \"string\",\n      \"icon\": \"string\",\n      \"theme\": \"string\",\n      \"accentColor\": \"string\",\n      \"layout\": \"string\"\n    },\n    {\n      \"slideNumber\": 5,\n      \"title\": \"string\",\n      \"body\": \"string\",\n      \"imagePrompt\": \"string\",\n      \"icon\": \"string\",\n      \"theme\": \"string\",\n      \"accentColor\": \"string\",\n      \"layout\": \"string\"\n    },\n    {\n      \"slideNumber\": 6,\n      \"title\": \"string\",\n      \"body\": \"string\",\n      \"imagePrompt\": \"string\",\n      \"icon\": \"string\",\n      \"theme\": \"string\",\n      \"accentColor\": \"string\",\n      \"layout\": \"string\"\n    }\n  ]\n}\n`;\n\nreturn [{\n  json: {\n    prompt,\n    finalDraft: $json.finalDraft,\n    wasRefined: $json.wasRefined\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -470,7 +481,7 @@
     },
     {
       "parameters": {
-        "jsCode": "let rawResponse = $json.response || \"\";\n\n// Remove everything before first {\nconst firstBraceIndex = rawResponse.indexOf(\"{\");\n\nif (firstBraceIndex !== -1) {\n  rawResponse = rawResponse.slice(firstBraceIndex);\n}\n\n// Remove markdown wrappers\nrawResponse = rawResponse\n  .replace(/```json/g, \"\")\n  .replace(/```/g, \"\")\n  .trim();\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(rawResponse);\n} catch (error) {\n  parsed = {\n    carousel_title: \"Frontend Trends This Week\",\n    slides: [\n      {\n        slideNumber: 1,\n        title: \"Frontend Trends\",\n        body: \"The biggest shifts in frontend and AI this week.\"\n      },\n      {\n        slideNumber: 2,\n        title: \"Privacy Tools\",\n        body: \"Marco shows privacy-first products are becoming more important.\"\n      },\n      {\n        slideNumber: 3,\n        title: \"Notebook Workflows\",\n        body: \"Looseleaf reflects demand for flexible developer workflows.\"\n      },\n      {\n        slideNumber: 4,\n        title: \"AI Creation\",\n        body: \"TailorToJob shows AI is helping non-developers create faster.\"\n      },\n      {\n        slideNumber: 5,\n        title: \"Big Shift\",\n        body: \"Developers want tools that are simpler and more focused.\"\n      },\n      {\n        slideNumber: 6,\n        title: \"Follow Elegant\",\n        body: \"Follow Elegant Frontend for weekly frontend insights.\"\n      }\n    ]\n  };\n}\n\nconst carouselText = parsed.slides.map(slide => {\n  return `Slide ${slide.slideNumber}\n${slide.title}\n${slide.body}`;\n}).join(\"\\n\\n------------------\\n\\n\");\n\nreturn [{\n  json: {\n    linkedin_carousel_json: parsed,\n    linkedin_carousel_text: carouselText,\n    finalDraft: $node[\"Merge1\"].json.finalDraft,\n    wasRefined: $node[\"Merge1\"].json.wasRefined\n  }\n}];"
+        "jsCode": "let rawResponse = $json.response || \"\";\n\n// Remove everything before first {\nconst firstBraceIndex = rawResponse.indexOf(\"{\");\n\nif (firstBraceIndex !== -1) {\n  rawResponse = rawResponse.slice(firstBraceIndex);\n}\n\n// Remove markdown wrappers\nrawResponse = rawResponse\n  .replace(/```json/g, \"\")\n  .replace(/```/g, \"\")\n  .trim();\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(rawResponse);\n} catch (error) {\n  parsed = {\n    carousel_title: \"Frontend Trends This Week\",\n    slides: [\n      {\n        slideNumber: 1,\n        title: \"Frontend Trends\",\n        body: \"The biggest shifts in frontend and AI this week.\",\n        imagePrompt: \"minimal futuristic dashboard showing frontend trends, AI agents, glowing charts, and modern UI cards\",\n        icon: \"monitor\",\n        theme: \"dark blue gradient\",\n        accentColor: \"#3B82F6\",\n        layout: \"centered-title-centered-body\"\n      },\n      {\n        slideNumber: 2,\n        title: \"Privacy Tools\",\n        body: \"Marco shows privacy-first products are becoming more important.\",\n        imagePrompt: \"minimal privacy dashboard with lock icons, secure browser windows, and dark UI panels\",\n        icon: \"shield\",\n        theme: \"dark glassmorphism\",\n        accentColor: \"#10B981\",\n        layout: \"split-left-text-right-image\"\n      },\n      {\n        slideNumber: 3,\n        title: \"Notebook Workflows\",\n        body: \"Looseleaf reflects demand for flexible developer workflows.\",\n        imagePrompt: \"futuristic notebook workspace with AI workflow diagrams, code snippets, and productivity panels\",\n        icon: \"workflow\",\n        theme: \"futuristic cyan glow\",\n        accentColor: \"#06B6D4\",\n        layout: \"title-left-body-right\"\n      },\n      {\n        slideNumber: 4,\n        title: \"AI Creation\",\n        body: \"TailorToJob shows AI is helping non-developers create faster.\",\n        imagePrompt: \"premium AI assistant workspace with glowing automation cards, text generation, and modern UI elements\",\n        icon: \"bot\",\n        theme: \"black and purple neon\",\n        accentColor: \"#8B5CF6\",\n        layout: \"title-top-icon-center\"\n      },\n      {\n        slideNumber: 5,\n        title: \"Big Shift\",\n        body: \"Developers want tools that are simpler and more focused.\",\n        imagePrompt: \"minimal futuristic workspace with fewer tools, clean interface, focused productivity, and premium dark theme\",\n        icon: \"layers\",\n        theme: \"modern fintech dark\",\n        accentColor: \"#6366F1\",\n        layout: \"full-background-image-overlay-text\"\n      },\n      {\n        slideNumber: 6,\n        title: \"Follow Elegant\",\n        body: \"Follow Elegant Frontend for weekly frontend insights.\",\n        imagePrompt: \"premium modern frontend newsletter branding with elegant typography, glowing UI cards, and futuristic design\",\n        icon: \"rocket\",\n        theme: \"midnight AI theme\",\n        accentColor: \"#F59E0B\",\n        layout: \"centered-title-centered-body\"\n      }\n    ]\n  };\n}\n\nconst carouselText = parsed.slides.map(slide => {\n  return `Slide ${slide.slideNumber}\n${slide.title}\n${slide.body}\n\nTheme: ${slide.theme}\nIcon: ${slide.icon}\nLayout: ${slide.layout}\nAccent Color: ${slide.accentColor}\nImage Prompt: ${slide.imagePrompt}`;\n}).join(\"\\n\\n------------------\\n\\n\");\n\nreturn [{\n  json: {\n    linkedin_carousel_json: parsed,\n    linkedin_carousel_visual_json: parsed,\n    linkedin_carousel_text: carouselText,\n\n    // Safe fallback values\n    finalDraft: $json.finalDraft || \"\",\n    wasRefined: $json.wasRefined || false\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -480,18 +491,18 @@
     },
     {
       "parameters": {
-        "jsCode": "const slides = $json.linkedin_carousel_json.slides || [];\nconst issues = $json.carousel_validation_issues || [];\nconst isValid = $json.carousel_valid;\n\nconst blocks = [\n  {\n    type: \"header\",\n    text: {\n      type: \"plain_text\",\n      text: \"LinkedIn Carousel Draft\"\n    }\n  },\n  {\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Carousel Valid:* ${isValid ? \"Yes\" : \"No\"}`\n    }\n  }\n];\n\nif (issues.length > 0) {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Issues Found:*\\n${issues.map(issue => `• ${issue}`).join(\"\\n\")}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n}\n\nslides.forEach(slide => {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Slide ${slide.slideNumber}: ${slide.title}*\\n${slide.body}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n});\n\nreturn [{\n  json: {\n    text: \"LinkedIn Carousel Draft\",\n    blocks\n  }\n}];"
+        "jsCode": "const slides = $json.linkedin_carousel_json.slides || [];\nconst issues = $json.carousel_validation_issues || [];\nconst isValid = $json.carousel_valid;\n\nconst blocks = [\n  {\n    type: \"header\",\n    text: {\n      type: \"plain_text\",\n      text: \"LinkedIn Carousel Draft\"\n    }\n  },\n  {\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Carousel Valid:* ${isValid ? \"Yes\" : \"No\"}`\n    }\n  }\n];\n\nif (issues.length > 0) {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Issues Found:*\\n${issues.map(issue => `• ${issue}`).join(\"\\n\")}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n}\n\nslides.forEach(slide => {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Slide ${slide.slideNumber}: ${slide.title}*\n${slide.body}\n\nTheme: ${slide.theme}\nIcon: ${slide.icon}\nLayout: ${slide.layout}\nAccent Color: ${slide.accentColor}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n});\n\nreturn [{\n  json: {\n    text: \"LinkedIn Carousel Draft\",\n    blocks\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2560, 1136],
+      "position": [2608, 1296],
       "id": "a14b6dda-00b3-46e1-b3e1-1466b190d326",
       "name": "Build Carousel Slack Preview"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=={{ $env.SLACK_WEBHOOK_URL }}",
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}",
@@ -499,7 +510,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [2768, 1088],
+      "position": [2848, 1328],
       "id": "036e9106-bf55-4ba4-bd63-78ff8d001db1",
       "name": "HTTP Request Carousel Slack"
     },
@@ -518,7 +529,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const carousel = $json.linkedin_carousel_json;\n\nlet issues = [];\n\nif (!carousel?.slides || carousel.slides.length !== 6) {\n  issues.push(\"Carousel does not contain exactly 6 slides.\");\n}\n\ncarousel?.slides?.forEach((slide, index) => {\n  if (!slide.title || slide.title.trim() === \"\") {\n    issues.push(`Slide ${index + 1} is missing a title.`);\n  }\n\n  if (!slide.body || slide.body.trim() === \"\") {\n    issues.push(`Slide ${index + 1} is missing a body.`);\n  }\n\n  const wordCount = slide.body.split(/\\s+/).length;\n\n  if (wordCount > 30) {\n    issues.push(`Slide ${index + 1} body exceeds 30 words.`);\n  }\n});\n\nreturn [{\n  json: {\n    ...$json,\n    carousel_validation_issues: issues,\n    carousel_valid: issues.length === 0\n  }\n}];"
+        "jsCode": "const carousel = $json.linkedin_carousel_json;\n\nconst allowedThemes = [\n  \"dark blue gradient\",\n  \"black and purple neon\",\n  \"minimal white and gray\",\n  \"dark glassmorphism\",\n  \"futuristic cyan glow\",\n  \"midnight AI theme\",\n  \"modern fintech dark\"\n];\n\nconst allowedLayouts = [\n  \"title-top text-bottom\",\n  \"split-left-text-right-image\",\n  \"centered-title-centered-body\",\n  \"title-top-icon-center\",\n  \"full-background-image-overlay-text\",\n  \"title-left-body-right\"\n];\n\nconst hexRegex = /^#([0-9A-F]{3}){1,2}$/i;\n\nlet issues = [];\n\nif (!carousel?.slides || carousel.slides.length !== 6) {\n  issues.push(\"Carousel does not contain exactly 6 slides.\");\n}\n\ncarousel?.slides?.forEach((slide, index) => {\n  if (!slide.title?.trim()) {\n    issues.push(`Slide ${index + 1} is missing a title.`);\n  }\n\n  if (!slide.body?.trim()) {\n    issues.push(`Slide ${index + 1} is missing a body.`);\n  }\n\n  if (!slide.imagePrompt?.trim()) {\n    issues.push(`Slide ${index + 1} is missing imagePrompt.`);\n  }\n\n  if (!slide.icon?.trim()) {\n    issues.push(`Slide ${index + 1} is missing icon.`);\n  }\n\n  if (!slide.theme?.trim()) {\n    issues.push(`Slide ${index + 1} is missing theme.`);\n  }\n\n  if (!slide.accentColor?.trim()) {\n    issues.push(`Slide ${index + 1} is missing accentColor.`);\n  }\n\n  if (!slide.layout?.trim()) {\n    issues.push(`Slide ${index + 1} is missing layout.`);\n  }\n\n  if (slide.theme && !allowedThemes.includes(slide.theme)) {\n    issues.push(`Slide ${index + 1} has invalid theme: ${slide.theme}`);\n  }\n\n  if (slide.layout && !allowedLayouts.includes(slide.layout)) {\n    issues.push(`Slide ${index + 1} has invalid layout: ${slide.layout}`);\n  }\n\n  if (slide.accentColor && !hexRegex.test(slide.accentColor)) {\n    issues.push(`Slide ${index + 1} has invalid accentColor: ${slide.accentColor}`);\n  }\n\n  const wordCount = slide.body.split(/\\s+/).length;\n\n  if (wordCount > 30) {\n    issues.push(`Slide ${index + 1} body exceeds 30 words.`);\n  }\n});\n\nreturn [{\n  json: {\n    ...$json,\n    carousel_validation_issues: issues,\n    carousel_valid: issues.length === 0\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -567,6 +578,11 @@
         [
           {
             "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Carousel Prompt",
             "type": "main",
             "index": 0
           }
@@ -702,11 +718,6 @@
             "node": "Build LinkedIn Prompt",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Build Carousel Prompt",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -827,15 +838,7 @@
       ]
     },
     "HTTP Request Carousel Slack": {
-      "main": [
-        [
-          {
-            "node": "Merge HTML + LinkedIn + Carousel",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
+      "main": [[]]
     },
     "Merge HTML + LinkedIn + Carousel": {
       "main": [
@@ -855,6 +858,11 @@
             "node": "Build Carousel Slack Preview",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Merge HTML + LinkedIn + Carousel",
+            "type": "main",
+            "index": 2
           }
         ]
       ]
@@ -866,7 +874,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "a9fa2716-d0e5-4274-b023-581f9a2a9329",
+  "versionId": "237bdac7-2113-4687-a006-4573f24f0fba",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"
