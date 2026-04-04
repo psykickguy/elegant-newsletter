@@ -8,7 +8,7 @@ export default function FullBackgroundImageOverlayText({
 }) {
   return (
     <div
-      className={`w-full h-[1080px] rounded-[40px] overflow-hidden relative ${theme.background}`}
+      className={`w-full h-[1080px] overflow-hidden relative ${theme.background}`}
     >
       <div className="absolute inset-0 bg-black/30 z-10" />
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />

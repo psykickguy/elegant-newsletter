@@ -8,7 +8,7 @@ export default function CenteredTitleCenteredBody({
 }) {
   return (
     <div
-      className={`w-full h-[1080px] rounded-[40px] overflow-hidden relative flex flex-col items-center justify-center text-center px-24 ${theme.background}`}
+      className={`w-full h-[1080px] overflow-hidden relative flex flex-col items-center justify-center text-center px-24 ${theme.background}`}
     >
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
 

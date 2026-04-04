@@ -1,19 +1,24 @@
-import singleSlide from "./sample-data/singleSlide";
+import carouselSlides from "./sample-data/carouselSlides";
 import { resolveSlide } from "./utils/resolveSlideComponent";
 
 export default function App() {
+  const params = new URLSearchParams(window.location.search);
+  const slideIndex = Number(params.get("slide")) || 0;
+
+  const slide = carouselSlides[slideIndex];
+
   const { LayoutComponent, ThemeComponent, IconComponent } =
-    resolveSlide(singleSlide);
+    resolveSlide(slide);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-10">
-      <div className="w-[1080px] h-[1080px] scale-[0.65] origin-center">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center overflow-hidden">
+      <div className="w-[1080px] h-[1080px]">
         <LayoutComponent
-          title={singleSlide.title}
-          body={singleSlide.body}
+          title={slide.title}
+          body={slide.body}
           icon={IconComponent}
           theme={ThemeComponent}
-          accentColor={singleSlide.accentColor}
+          accentColor={slide.accentColor}
         />
       </div>
     </div>

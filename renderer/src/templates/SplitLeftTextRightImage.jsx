@@ -8,7 +8,7 @@ export default function SplitLeftTextRightImage({
 }) {
   return (
     <div
-      className={`w-full h-[1080px] rounded-[40px] overflow-hidden relative flex ${theme.background}`}
+      className={`w-full h-[1080px] overflow-hidden relative flex ${theme.background}`}
     >
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
 

@@ -3,7 +3,7 @@ import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
 export default function TitleLeftBodyRight({ title, body, icon: Icon, theme }) {
   return (
     <div
-      className={`w-full h-[1080px] rounded-[40px] overflow-hidden relative p-20 ${theme.background}`}
+      className={`w-full h-[1080px] overflow-hidden relative p-20 ${theme.background}`}
     >
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
 

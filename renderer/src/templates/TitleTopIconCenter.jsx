@@ -3,7 +3,7 @@ import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
 export default function TitleTopIconCenter({ title, body, icon: Icon, theme }) {
   return (
     <div
-      className={`w-full h-[1080px] rounded-[40px] overflow-hidden relative flex flex-col items-center px-20 py-24 text-center ${theme.background}`}
+      className={`w-full h-[1080px] overflow-hidden relative flex flex-col items-center px-20 py-24 text-center ${theme.background}`}
     >
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
 
