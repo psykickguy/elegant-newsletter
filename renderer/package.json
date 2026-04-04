@@ -9,12 +9,15 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "render:slide": "node src/scripts/renderSingleSlide.js",
-    "render:all": "node src/scripts/renderAllSlides.js"
+    "render:all": "node src/scripts/renderAllSlides.js",
+    "generate:pdf": "node src/scripts/generatePdf.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
+    "archiver": "^7.0.1",
     "express": "^5.2.1",
     "lucide-react": "^1.7.0",
+    "pdf-lib": "^1.17.1",
     "puppeteer": "^24.40.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
