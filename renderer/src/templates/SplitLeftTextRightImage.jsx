@@ -1,3 +1,5 @@
+import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+
 export default function SplitLeftTextRightImage({
   title,
   body,
@@ -12,9 +14,9 @@ export default function SplitLeftTextRightImage({
 
       <div className="w-1/2 flex flex-col justify-center px-20 relative z-10">
         <div
-          className={`w-28 h-28 rounded-[28px] flex items-center justify-center mb-10 ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
+          className={`mb-10 ${iconContainerStyles.medium} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
         >
-          <Icon className={`w-14 h-14 ${theme.textSecondary}`} />
+          <Icon className={`${iconSizeStyles.medium} ${theme.textSecondary}`} />
         </div>
 
         <h1
@@ -42,9 +44,9 @@ export default function SplitLeftTextRightImage({
         />
 
         <div
-          className={`relative z-10 w-[260px] h-[260px] rounded-full flex items-center justify-center ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
+          className={`relative z-10 ${iconContainerStyles.circle} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
         >
-          <Icon className={`w-28 h-28 ${theme.textSecondary}`} />
+          <Icon className={`${iconSizeStyles.hero} ${theme.textSecondary}`} />
         </div>
       </div>
     </div>

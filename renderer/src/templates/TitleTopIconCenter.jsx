@@ -1,3 +1,5 @@
+import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+
 export default function TitleTopIconCenter({ title, body, icon: Icon, theme }) {
   return (
     <div
@@ -12,9 +14,9 @@ export default function TitleTopIconCenter({ title, body, icon: Icon, theme }) {
       </h1>
 
       <div
-        className={`relative z-10 w-[260px] h-[260px] rounded-full flex items-center justify-center mb-12 ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
+        className={`relative z-10 mb-12 ${iconContainerStyles.circle} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
       >
-        <Icon className={`w-28 h-28 ${theme.textSecondary}`} />
+        <Icon className={`${iconSizeStyles.hero} ${theme.textSecondary}`} />
       </div>
 
       <p

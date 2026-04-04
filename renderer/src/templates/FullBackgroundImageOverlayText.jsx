@@ -1,3 +1,5 @@
+import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+
 export default function FullBackgroundImageOverlayText({
   title,
   body,
@@ -18,9 +20,9 @@ export default function FullBackgroundImageOverlayText({
 
       <div className="relative z-20 flex flex-col justify-end h-full p-20">
         <div
-          className={`w-28 h-28 rounded-[28px] flex items-center justify-center mb-10 ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
+          className={`mb-10 ${iconContainerStyles.medium} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
         >
-          <Icon className={`w-14 h-14 ${theme.textSecondary}`} />
+          <Icon className={`${iconSizeStyles.medium} ${theme.textSecondary}`} />
         </div>
 
         <h1

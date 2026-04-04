@@ -1,3 +1,5 @@
+import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+
 export default function CenteredTitleCenteredBody({
   title,
   body,
@@ -14,9 +16,9 @@ export default function CenteredTitleCenteredBody({
       <div className="absolute bottom-10 left-10 w-60 h-60 rounded-full bg-white/5 blur-3xl" />
 
       <div
-        className={`relative z-10 w-36 h-36 rounded-[32px] flex items-center justify-center mb-12 ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
+        className={`relative z-10 mb-12 ${iconContainerStyles.large} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
       >
-        <Icon className={`w-16 h-16 ${theme.textSecondary}`} />
+        <Icon className={`${iconSizeStyles.large} ${theme.textSecondary}`} />
       </div>
 
       <h1

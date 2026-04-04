@@ -1,3 +1,5 @@
+import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+
 export default function TitleLeftBodyRight({ title, body, icon: Icon, theme }) {
   return (
     <div
@@ -9,9 +11,11 @@ export default function TitleLeftBodyRight({ title, body, icon: Icon, theme }) {
         <div className="flex justify-between items-start">
           <div className="max-w-[450px]">
             <div
-              className={`w-28 h-28 rounded-[28px] flex items-center justify-center mb-10 ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
+              className={`mb-10 ${iconContainerStyles.medium} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
             >
-              <Icon className={`w-14 h-14 ${theme.textSecondary}`} />
+              <Icon
+                className={`${iconSizeStyles.medium} ${theme.textSecondary}`}
+              />
             </div>
 
             <h1
