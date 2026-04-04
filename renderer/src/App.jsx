@@ -1,39 +1,71 @@
+import { Bot, Monitor, Rocket, Shield, Workflow, Layers } from "lucide-react";
 import { themeMap } from "./themes";
+import { layoutMap } from "./templates";
+
+const sampleSlides = [
+  {
+    title: "Frontend Trends",
+    body: "The biggest shifts in frontend and AI this week.",
+    icon: Monitor,
+    theme: themeMap["dark blue gradient"],
+    layout: "centered-title-centered-body",
+  },
+  {
+    title: "Privacy Tools",
+    body: "Marco shows privacy-first products are becoming more important.",
+    icon: Shield,
+    theme: themeMap["dark glassmorphism"],
+    layout: "split-left-text-right-image",
+  },
+  {
+    title: "Notebook Workflows",
+    body: "Looseleaf reflects demand for flexible developer workflows.",
+    icon: Workflow,
+    theme: themeMap["futuristic cyan glow"],
+    layout: "title-left-body-right",
+  },
+  {
+    title: "AI Creation",
+    body: "TailorToJob shows AI is helping non-developers create faster.",
+    icon: Bot,
+    theme: themeMap["black and purple neon"],
+    layout: "title-top-icon-center",
+  },
+  {
+    title: "Big Shift",
+    body: "Developers want tools that are simpler and more focused.",
+    icon: Layers,
+    theme: themeMap["modern fintech dark"],
+    layout: "full-background-image-overlay-text",
+  },
+  {
+    title: "Follow Elegant",
+    body: "Follow Elegant Frontend for weekly frontend insights.",
+    icon: Rocket,
+    theme: themeMap["midnight AI theme"],
+    layout: "centered-title-centered-body",
+  },
+];
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-950 p-10">
-      <div className="grid grid-cols-2 gap-8">
-        {Object.values(themeMap).map((theme) => (
-          <div
-            key={theme.name}
-            className={`rounded-[32px] p-8 h-[300px] relative overflow-hidden ${theme.background} ${theme.accentBorder}`}
-          >
-            <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
+    <div className="bg-slate-950 min-h-screen p-10 flex flex-col gap-20">
+      {sampleSlides.map((slide, index) => {
+        const LayoutComponent = layoutMap[slide.layout];
 
-            <div className="relative z-10">
-              <p
-                className={`text-sm uppercase tracking-[0.2em] mb-4 ${theme.mutedText}`}
-              >
-                Theme Preview
-              </p>
-
-              <h2 className={`text-3xl font-bold mb-4 ${theme.textPrimary}`}>
-                {theme.name}
-              </h2>
-
-              <p className={`text-lg ${theme.textSecondary}`}>
-                Premium futuristic slide styling for LinkedIn carousel
-                generation.
-              </p>
-
-              <div
-                className={`mt-8 w-20 h-20 rounded-2xl ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
+        return (
+          <div key={index} className="w-full flex justify-center py-10">
+            <div className="scale-[0.35] origin-top">
+              <LayoutComponent
+                title={slide.title}
+                body={slide.body}
+                icon={slide.icon}
+                theme={slide.theme}
               />
             </div>
           </div>
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 }
