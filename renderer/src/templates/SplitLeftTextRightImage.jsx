@@ -1,4 +1,10 @@
 import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+import {
+  GlowOrb,
+  GlassCard,
+  DotGrid,
+  DashboardWidget,
+} from "../components/DecorativeElements";
 
 export default function SplitLeftTextRightImage({
   title,
@@ -32,16 +38,19 @@ export default function SplitLeftTextRightImage({
         </p>
       </div>
 
-      <div className="w-1/2 relative flex items-center justify-center">
-        <div
-          className={`absolute top-24 right-20 w-[420px] h-[700px] rounded-[40px] ${theme.cardBackground} ${theme.cardBorder}`}
+      <div className="w-1/2 relative flex items-center justify-center overflow-hidden">
+        <GlowOrb
+          className="w-[420px] h-[420px] right-10 top-32"
+          color="bg-cyan-400/15"
         />
-        <div
-          className={`absolute top-40 right-40 w-[280px] h-[180px] rounded-[28px] ${theme.cardBackground} ${theme.cardBorder}`}
-        />
-        <div
-          className={`absolute bottom-36 right-32 w-[340px] h-[220px] rounded-[28px] ${theme.cardBackground} ${theme.cardBorder}`}
-        />
+
+        <DotGrid className="w-[320px] h-[320px] right-10 top-24" />
+
+        <GlassCard className="top-24 right-20 w-[420px] h-[700px]" />
+
+        <GlassCard className="top-40 right-40 w-[280px] h-[180px]" />
+
+        <DashboardWidget className="bottom-36 right-32 w-[340px] h-[220px]" />
 
         <div
           className={`relative z-10 ${iconContainerStyles.circle} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}

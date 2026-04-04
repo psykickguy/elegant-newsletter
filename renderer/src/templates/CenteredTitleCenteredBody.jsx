@@ -1,4 +1,9 @@
 import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+import {
+  GlowOrb,
+  DotGrid,
+  GradientLine,
+} from "../components/DecorativeElements";
 
 export default function CenteredTitleCenteredBody({
   title,
@@ -12,8 +17,19 @@ export default function CenteredTitleCenteredBody({
     >
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
 
-      <div className="absolute top-16 right-16 w-40 h-40 rounded-full bg-white/5 blur-3xl" />
-      <div className="absolute bottom-10 left-10 w-60 h-60 rounded-full bg-white/5 blur-3xl" />
+      <GlowOrb
+        className="top-20 left-20 w-[300px] h-[300px]"
+        color="bg-cyan-400/10"
+      />
+
+      <GlowOrb
+        className="bottom-10 right-10 w-[300px] h-[300px]"
+        color="bg-blue-500/10"
+      />
+
+      <DotGrid className="top-16 right-16 w-[240px] h-[240px]" />
+
+      <GradientLine className="bottom-32 left-0 w-full h-[2px]" />
 
       <div
         className={`relative z-10 mb-12 ${iconContainerStyles.large} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}

@@ -1,4 +1,11 @@
 import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+import {
+  GlowOrb,
+  GlassCard,
+  DotGrid,
+  DashboardWidget,
+  GradientLine,
+} from "../components/DecorativeElements";
 
 export default function TitleLeftBodyRight({ title, body, icon: Icon, theme }) {
   return (
@@ -32,10 +39,21 @@ export default function TitleLeftBodyRight({ title, body, icon: Icon, theme }) {
           </div>
         </div>
 
-        <div className="flex-1 flex items-end justify-center">
-          <div
-            className={`w-full h-[320px] rounded-[40px] ${theme.cardBackground} ${theme.cardBorder} mt-16`}
+        <div className="flex-1 flex items-end justify-center relative">
+          <GlowOrb
+            className="w-[500px] h-[300px] left-10 bottom-0"
+            color="bg-cyan-400/10"
           />
+
+          <DotGrid className="w-[260px] h-[160px] right-10 bottom-10" />
+
+          <GlassCard className="left-0 bottom-0 w-[260px] h-[180px]" />
+
+          <DashboardWidget className="left-[300px] bottom-0 w-[260px] h-[180px]" />
+
+          <GlassCard className="right-0 bottom-0 w-[260px] h-[180px]" />
+
+          <GradientLine className="bottom-[220px] left-0 w-full h-[2px]" />
         </div>
       </div>
     </div>

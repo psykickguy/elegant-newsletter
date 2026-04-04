@@ -1,4 +1,9 @@
 import { iconContainerStyles, iconSizeStyles } from "../icons/iconStyles";
+import {
+  GlowOrb,
+  DotGrid,
+  GradientLine,
+} from "../components/DecorativeElements";
 
 export default function FullBackgroundImageOverlayText({
   title,
@@ -14,8 +19,19 @@ export default function FullBackgroundImageOverlayText({
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
 
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <div className="absolute top-[-100px] right-[-100px] w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute bottom-[-120px] left-[-120px] w-[600px] h-[600px] rounded-full bg-white/5 blur-3xl" />
+        <GlowOrb
+          className="w-[500px] h-[500px] top-[-100px] right-[-100px]"
+          color="bg-indigo-400/10"
+        />
+
+        <GlowOrb
+          className="w-[600px] h-[600px] bottom-[-120px] left-[-120px]"
+          color="bg-cyan-400/10"
+        />
+
+        <DotGrid className="top-20 right-20 w-[300px] h-[300px]" />
+
+        <GradientLine className="top-32 left-0 w-full h-[2px]" />
       </div>
 
       <div className="relative z-20 flex flex-col justify-end h-full p-20">
@@ -26,13 +42,13 @@ export default function FullBackgroundImageOverlayText({
         </div>
 
         <h1
-          className={`text-[88px] leading-[0.95] font-bold max-w-[760px] mb-8 ${theme.textPrimary}`}
+          className={`text-[92px] leading-[0.92] font-bold max-w-[860px] mb-8 ${theme.textPrimary}`}
         >
           {title}
         </h1>
 
         <p
-          className={`text-[32px] leading-[1.5] max-w-[620px] ${theme.mutedText}`}
+          className={`text-[34px] leading-[1.5] max-w-[700px] ${theme.mutedText}`}
         >
           {body}
         </p>
