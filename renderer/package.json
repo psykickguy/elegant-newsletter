@@ -11,7 +11,8 @@
     "render:slide": "node src/scripts/renderSingleSlide.js",
     "render:all": "node src/scripts/renderAllSlides.js",
     "generate:pdf": "node src/scripts/generatePdf.js",
-    "generate:zip": "node src/scripts/generateZip.js"
+    "generate:zip": "node src/scripts/generateZip.js",
+    "upload:assets": "node src/scripts/uploadAssets.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",

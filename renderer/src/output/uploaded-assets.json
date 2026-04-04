@@ -1,0 +1,46 @@
+{
+  "slides": [
+    {
+      "file": "slide-1.png",
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329476/elegant-newsletter/slide-1.png"
+    },
+    {
+      "file": "slide-2.png",
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329477/elegant-newsletter/slide-2.png"
+    },
+    {
+      "file": "slide-3.png",
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329478/elegant-newsletter/slide-3.png"
+    },
+    {
+      "file": "slide-4.png",
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329479/elegant-newsletter/slide-4.png"
+    },
+    {
+      "file": "slide-5.png",
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329480/elegant-newsletter/slide-5.png"
+    },
+    {
+      "file": "slide-6.png",
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329481/elegant-newsletter/slide-6.png"
+    }
+  ],
+  "pdf": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329473/elegant-newsletter/carousel.pdf",
+  "zip": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329472/elegant-newsletter/carousel-assets.zip",
+  "textFiles": [
+    {
+      "file": "linkedin-post.txt",
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329668/elegant-newsletter/linkedin-post.txt"
+    }
+  ],
+  "metadataFiles": [
+    {
+      "file": "metadata.json",
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329669/elegant-newsletter/metadata.json"
+    },
+    {
+      "file": "uploaded-assets.json",
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329677/elegant-newsletter/uploaded-assets.json"
+    }
+  ]
+}
