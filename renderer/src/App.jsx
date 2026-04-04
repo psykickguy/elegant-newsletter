@@ -1,6 +1,4 @@
-import { iconMap } from "./icons/iconMap";
-import { themeMap } from "./themes";
-import { layoutMap } from "./templates";
+import { resolveSlide } from "./utils/resolveSlideComponent";
 
 const sampleSlides = [
   {
@@ -45,15 +43,21 @@ const sampleSlides = [
     theme: "midnight AI theme",
     layout: "centered-title-centered-body",
   },
+  {
+    title: "Broken Input Test",
+    body: "This should still render even if theme, icon, or layout is wrong.",
+    icon: "nonexistent-icon",
+    theme: "fake-theme",
+    layout: "wrong-layout",
+  },
 ];
 
 export default function App() {
   return (
     <div className="bg-slate-950 min-h-screen p-10 flex flex-col gap-20">
       {sampleSlides.map((slide, index) => {
-        const LayoutComponent = layoutMap[slide.layout];
-        const IconComponent = iconMap[slide.icon];
-        const ThemeComponent = themeMap[slide.theme];
+        const { LayoutComponent, ThemeComponent, IconComponent } =
+          resolveSlide(slide);
 
         return (
           <div key={index} className="w-full flex justify-center py-10">
