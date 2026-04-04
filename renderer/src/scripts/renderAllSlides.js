@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 import path from "path";
 import fs from "fs";
+import generatedCarousel from "../sample-data/generatedCarousel.json" assert { type: "json" };
 
 const outputDir = path.join(process.cwd(), "src/output");
 
@@ -21,10 +22,18 @@ async function renderSlides() {
     deviceScaleFactor: 1,
   });
 
-  for (let i = 0; i < 6; i++) {
+  const totalSlides = generatedCarousel.slides.length;
+
+  if (totalSlides === 0) {
+    console.log("No slides found in generatedCarousel.json");
+    await browser.close();
+    return;
+  }
+
+  for (let i = 0; i < totalSlides; i++) {
     const url = `http://localhost:5173?slide=${i}`;
 
-    console.log(`Rendering slide ${i + 1}...`);
+    console.log(`Rendering slide ${i + 1} of ${totalSlides}...`);
 
     await page.goto(url, {
       waitUntil: "networkidle0",
@@ -42,6 +51,7 @@ async function renderSlides() {
 
   await browser.close();
 
-  console.log("All slides rendered successfully.");
+  console.log(`Successfully rendered ${totalSlides} slides.`);
 }
+
 renderSlides();

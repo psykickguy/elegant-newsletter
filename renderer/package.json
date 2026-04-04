@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "start:api": "node server.js",
     "render:slide": "node src/scripts/renderSingleSlide.js",
     "render:all": "node src/scripts/renderAllSlides.js",
     "generate:pdf": "node src/scripts/generatePdf.js",

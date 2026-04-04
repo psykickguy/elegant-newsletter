@@ -1,0 +1,65 @@
+{
+  "carousel_title": "Frontend and AI Shifts: What's Next?",
+  "slides": [
+    {
+      "slideNumber": 1,
+      "title": "Biggest Frontend and AI Trends",
+      "body": "Zep AI, Pinterest MCP, Google AI agents, and OpenClaw are shaping the future of frontend architecture, AI agents, and workflows.",
+      "imagePrompt": "A futuristic illustration of a developer working with Zep AI and Pinterest MCP",
+      "icon": "server",
+      "theme": "futuristic cyan glow",
+      "accentColor": "#03A9F4",
+      "layout": "title-top text-bottom"
+    },
+    {
+      "slideNumber": 2,
+      "title": "Frontend Architecture Trends",
+      "body": "Cloudflare Dynamic Workers, TensorFlow.js, and Web Workers are changing the game for frontend performance and rendering.",
+      "imagePrompt": "An illustration of a CPU with Cloudflare Dynamic Workers running in the background",
+      "icon": "cpu",
+      "theme": "minimal white and gray",
+      "accentColor": "#F9F9F9",
+      "layout": "split-left-text-right-image"
+    },
+    {
+      "slideNumber": 3,
+      "title": "AI Agents Reshaping UI Work",
+      "body": "OpenClaw, Hermes Agent, and Pinterest MCP are revolutionizing the way we build AI-powered workflows and interfaces.",
+      "imagePrompt": "An illustration of an AI agent in action with OpenClaw and Hermes Agent",
+      "icon": "bot",
+      "theme": "midnight AI theme",
+      "accentColor": "#2F3436",
+      "layout": "centered-title-centered-body"
+    },
+    {
+      "slideNumber": 4,
+      "title": "Emerging Developer Tooling",
+      "body": "GitHub Copilot, JetBrains AI Agent Builder, and Ollama's MLX framework are changing the way developers build and deploy applications.",
+      "imagePrompt": "An illustration of a developer using GitHub Copilot and JetBrains AI Agent Builder",
+      "icon": "code",
+      "theme": "dark blue gradient",
+      "accentColor": "#3B82F6",
+      "layout": "title-top text-bottom"
+    },
+    {
+      "slideNumber": 5,
+      "title": "What's Next?",
+      "body": "Edge runtimes, server rendering, and persistent AI agents will be the key to unlocking better performance and scalability.",
+      "imagePrompt": "An illustration of a developer working with edge runtime and server rendering",
+      "icon": "rocket",
+      "theme": "futuristic cyan glow",
+      "accentColor": "#03A9F4",
+      "layout": "title-top text-bottom"
+    },
+    {
+      "slideNumber": 6,
+      "title": "Stay Ahead with Elegant Frontend",
+      "body": "Follow us for weekly insights on frontend architecture, AI agents, and developer tooling.",
+      "imagePrompt": "A futuristic illustration of a developer working with Elegant Frontend",
+      "icon": "brain",
+      "theme": "modern fintech dark",
+      "accentColor": "#14B8A6",
+      "layout": "title-top text-bottom"
+    }
+  ]
+}

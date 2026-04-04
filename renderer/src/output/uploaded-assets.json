@@ -2,31 +2,31 @@
   "slides": [
     {
       "file": "slide-1.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329476/elegant-newsletter/slide-1.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775336975/elegant-newsletter/slide-1.png"
     },
     {
       "file": "slide-2.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329477/elegant-newsletter/slide-2.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775336976/elegant-newsletter/slide-2.png"
     },
     {
       "file": "slide-3.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329478/elegant-newsletter/slide-3.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775336977/elegant-newsletter/slide-3.png"
     },
     {
       "file": "slide-4.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329479/elegant-newsletter/slide-4.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775336978/elegant-newsletter/slide-4.png"
     },
     {
       "file": "slide-5.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329480/elegant-newsletter/slide-5.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775336980/elegant-newsletter/slide-5.png"
     },
     {
       "file": "slide-6.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775329481/elegant-newsletter/slide-6.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1775336981/elegant-newsletter/slide-6.png"
     }
   ],
-  "pdf": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329473/elegant-newsletter/carousel.pdf",
-  "zip": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329472/elegant-newsletter/carousel-assets.zip",
+  "pdf": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775336973/elegant-newsletter/carousel.pdf",
+  "zip": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775336971/elegant-newsletter/carousel-assets.zip",
   "textFiles": [
     {
       "file": "linkedin-post.txt",
@@ -40,7 +40,7 @@
     },
     {
       "file": "uploaded-assets.json",
-      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329677/elegant-newsletter/uploaded-assets.json"
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775336982/elegant-newsletter/uploaded-assets.json"
     }
   ]
 }
