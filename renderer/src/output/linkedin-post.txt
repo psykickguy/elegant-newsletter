@@ -1,0 +1,7 @@
+Frontend teams are becoming more selective about the tools they adopt.
+
+This week, products like Marco and Looseleaf highlighted a shift toward privacy-first workflows and faster local tooling. Developers are prioritizing tools that feel simpler, faster, and easier to integrate into existing workflows.
+
+The strongest developer tools are becoming simpler, not bigger.
+
+#frontend #webdev #ai

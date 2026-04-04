@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-04-04T20:30:00",
+  "carouselTitle": "Frontend Trends Weekly",
+  "slideCount": 6,
+  "slides": [
+    {
+      "slide": 1,
+      "title": "Frontend Trends",
+      "theme": "dark-blue-gradient",
+      "layout": "centered-title-centered-body",
+      "icon": "monitor"
+    },
+    {
+      "slide": 2,
+      "title": "Privacy Tools",
+      "theme": "dark-glassmorphism",
+      "layout": "split-left-text-right-image",
+      "icon": "shield"
+    }
+  ]
+}
