@@ -72,7 +72,11 @@
             "linkedin_post": "={{ $json.linkedin_post }}",
             "linkedin_carousel_text": "={{ $json.linkedin_carousel_text }}",
             "linkedin_carousel_json": "={{$json.linkedin_carousel_json}}",
-            "linkedin_carousel_visual_json": "={{$json.linkedin_carousel_visual_json}}"
+            "linkedin_carousel_visual_json": "={{$json.linkedin_carousel_visual_json}}",
+            "carousel_slide_urls": "={{ { slides: $json.slideUrls } }}",
+            "carousel_pdf_url": "={{ $json.pdfUrl }}",
+            "carousel_zip_url": "={{ $json.zipUrl }}",
+            "carousel_metadata_json": "={{ { files: $json.metadataFiles } }}"
           },
           "matchingColumns": ["id"],
           "schema": [
@@ -204,6 +208,46 @@
               "type": "object",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "carousel_slide_urls",
+              "displayName": "carousel_slide_urls",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "carousel_pdf_url",
+              "displayName": "carousel_pdf_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "carousel_zip_url",
+              "displayName": "carousel_zip_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "carousel_metadata_json",
+              "displayName": "carousel_metadata_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -213,7 +257,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
-      "position": [3264, 912],
+      "position": [3200, 1056],
       "id": "d34412bc-1a08-4a61-b910-de4478282437",
       "name": "Insert rows in a table1",
       "credentials": {
@@ -368,12 +412,12 @@
         "fromEmail": "shubhdas2005@gmail.com",
         "toEmail": "shubhdas2005@gmail.com",
         "subject": "=Frontend Weekly Newsletter – {{$now.format(\"DD\")}}",
-        "html": "=={{ $json.html_content }}\n\n<hr>\n\n<h2>LinkedIn Post Draft</h2>\n<pre>{{ $json.linkedin_post }}</pre>\n\n<hr>\n\n<h2>LinkedIn Carousel Draft</h2>\n<pre>{{ $json.linkedin_carousel_text }}</pre>\n\n<hr>\n\n<h2>LinkedIn Carousel Visual Draft</h2>\n<pre>{{ JSON.stringify($json.linkedin_carousel_visual_json, null, 2) }}</pre>",
+        "html": "=={{ $json.html_content }}\n\n<hr>\n\n<h2>LinkedIn Post Draft</h2>\n<pre>{{ $json.linkedin_post }}</pre>\n\n<hr>\n\n<h2>LinkedIn Carousel Draft</h2>\n<pre>{{ $json.linkedin_carousel_text }}</pre>\n\n<hr>\n\n<h2>LinkedIn Carousel Visual Draft</h2>\n<pre>{{ JSON.stringify($json.linkedin_carousel_visual_json, null, 2) }}</pre>\n\n<hr>\n\n<h2>Carousel Assets Generated</h2>\n\n<p><strong>Preview Slide URL:</strong></p>\n<p>\n  <a href=\"{{ $json.slideUrls?.[0]?.url || '' }}\">\n    {{ $json.slideUrls?.[0]?.url || 'No Preview Available' }}\n  </a>\n</p>\n\n<p><strong>PDF URL:</strong></p>\n<p>\n  <a href=\"{{ $json.pdfUrl || '' }}\">\n    {{ $json.pdfUrl || 'No PDF Available' }}\n  </a>\n</p>\n\n<p><strong>ZIP URL:</strong></p>\n<p>\n  <a href=\"{{ $json.zipUrl || '' }}\">\n    {{ $json.zipUrl || 'No ZIP Available' }}\n  </a>\n</p>\n\n<hr>\n\n<h2>All Carousel Slides</h2>\n\n={{\n  $json.slideUrls?.length\n    ? $json.slideUrls\n        .map(\n          slide => `\n            <div style=\"margin-bottom:32px; padding-bottom:24px; border-bottom:1px solid #e5e7eb;\">\n              <p style=\"font-size:16px; font-weight:bold; margin-bottom:8px;\">\n                ${slide.file}\n              </p>\n\n              <p style=\"margin-bottom:12px;\">\n                <a href=\"${slide.url}\">\n                  ${slide.url}\n                </a>\n              </p>\n\n              <img\n                src=\"${slide.url}\"\n                alt=\"${slide.file}\"\n                style=\"\n                  max-width:100%;\n                  border-radius:16px;\n                  margin-top:8px;\n                  border:1px solid #d1d5db;\n                  box-shadow:0 4px 12px rgba(0,0,0,0.08);\n                \"\n              />\n            </div>\n          `\n        )\n    : \"<p>No slide previews available.</p>\"\n}}",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
-      "position": [3472, 912],
+      "position": [3376, 704],
       "id": "2976ba73-921a-4adc-8db7-6095917b0e63",
       "name": "Send an Email1",
       "webhookId": "37d6db3c-843e-4ffb-9ec4-f7698543b2c4",
@@ -442,7 +486,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}",
@@ -460,7 +504,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1696, 1216],
+      "position": [1632, 1328],
       "id": "a6d98048-29ed-45dc-9f20-285bde37f256",
       "name": "Build Carousel Prompt"
     },
@@ -491,18 +535,18 @@
     },
     {
       "parameters": {
-        "jsCode": "const slides = $json.linkedin_carousel_json.slides || [];\nconst issues = $json.carousel_validation_issues || [];\nconst isValid = $json.carousel_valid;\n\nconst blocks = [\n  {\n    type: \"header\",\n    text: {\n      type: \"plain_text\",\n      text: \"LinkedIn Carousel Draft\"\n    }\n  },\n  {\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Carousel Valid:* ${isValid ? \"Yes\" : \"No\"}`\n    }\n  }\n];\n\nif (issues.length > 0) {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Issues Found:*\\n${issues.map(issue => `• ${issue}`).join(\"\\n\")}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n}\n\nslides.forEach(slide => {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Slide ${slide.slideNumber}: ${slide.title}*\n${slide.body}\n\nTheme: ${slide.theme}\nIcon: ${slide.icon}\nLayout: ${slide.layout}\nAccent Color: ${slide.accentColor}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n});\n\nreturn [{\n  json: {\n    text: \"LinkedIn Carousel Draft\",\n    blocks\n  }\n}];"
+        "jsCode": "const slides = $json.linkedin_carousel_json?.slides || [];\nconst issues = $json.carousel_validation_issues || [];\nconst isValid = $json.carousel_valid;\n\nconst renderedSlides = $json.slideUrls || [];\nconst pdfUrl = $json.pdfUrl || \"\";\nconst zipUrl = $json.zipUrl || \"\";\n\nconst blocks = [\n  {\n    type: \"header\",\n    text: {\n      type: \"plain_text\",\n      text: \"LinkedIn Carousel Assets Ready\"\n    }\n  },\n  {\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Carousel Valid:* ${isValid ? \"Yes\" : \"No\"}`\n    }\n  }\n];\n\n// Preview image + PDF + ZIP\nif (renderedSlides.length > 0) {\n  // Show preview image\n  blocks.push({\n    type: \"image\",\n    image_url: renderedSlides[0]?.url || renderedSlides[0],\n    alt_text: \"Carousel Preview Slide\"\n  });\n\n  // Show asset links\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text:\n        `*Preview Slide URL:*\\n${renderedSlides[0]?.url || renderedSlides[0] || \"N/A\"}\\n\\n` +\n        `*PDF URL:*\\n${pdfUrl || \"N/A\"}\\n\\n` +\n        `*ZIP URL:*\\n${zipUrl || \"N/A\"}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n}\n\nif (issues.length > 0) {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Issues Found:*\\n${issues.map(issue => `• ${issue}`).join(\"\\n\")}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n}\n\nslides.forEach(slide => {\n  blocks.push({\n    type: \"section\",\n    text: {\n      type: \"mrkdwn\",\n      text: `*Slide ${slide.slideNumber}: ${slide.title}*\n${slide.body}\n\nTheme: ${slide.theme}\nIcon: ${slide.icon}\nLayout: ${slide.layout}\nAccent Color: ${slide.accentColor}`\n    }\n  });\n\n  blocks.push({\n    type: \"divider\"\n  });\n});\n\nreturn [{\n  json: {\n    ...$json,\n    text: \"LinkedIn Carousel Assets Ready\",\n    blocks\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2608, 1296],
+      "position": [2848, 1280],
       "id": "a14b6dda-00b3-46e1-b3e1-1466b190d326",
       "name": "Build Carousel Slack Preview"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "url": "={{$env.SLACK_WEBHOOK_URL}}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}",
@@ -510,7 +554,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [2848, 1328],
+      "position": [3152, 1344],
       "id": "036e9106-bf55-4ba4-bd63-78ff8d001db1",
       "name": "HTTP Request Carousel Slack"
     },
@@ -518,7 +562,7 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "numberInputs": 3,
+        "numberInputs": 4,
         "options": {}
       },
       "type": "n8n-nodes-base.merge",
@@ -536,6 +580,39 @@
       "position": [2352, 1184],
       "id": "9259a95f-1a9d-4e90-83e6-a8888262e7a5",
       "name": "Validate Carousel Output"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3001/render-carousel",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.linkedin_carousel_visual_json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [2608, 1216],
+      "id": "c3df8da8-c704-44c1-9d60-160887fdb090",
+      "name": "HTTP Request Renderer API"
+    },
+    {
+      "parameters": {
+        "postAs": "organization",
+        "organization": "112834897",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [3040, 2048],
+      "id": "1b47b390-6393-4974-a132-7d42e8edf5d6",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "CHZf1Kbk24mBxhDA",
+          "name": "LinkedIn account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -590,15 +667,7 @@
       ]
     },
     "Insert rows in a table1": {
-      "main": [
-        [
-          {
-            "node": "Send an Email1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[]]
     },
     "HTTP Request6": {
       "main": [
@@ -847,11 +916,32 @@
             "node": "Insert rows in a table1",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Send an Email1",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
     },
     "Validate Carousel Output": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Renderer API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge HTML + LinkedIn + Carousel",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "HTTP Request Renderer API": {
       "main": [
         [
           {
@@ -862,7 +952,7 @@
           {
             "node": "Merge HTML + LinkedIn + Carousel",
             "type": "main",
-            "index": 2
+            "index": 3
           }
         ]
       ]
@@ -874,7 +964,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "237bdac7-2113-4687-a006-4573f24f0fba",
+  "versionId": "e9646eb5-f069-42bb-9777-509e5147ceca",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27a68b5314fa9d4e358a5c3d7fa733cbecef90f984715c22608d0c845f438da1"

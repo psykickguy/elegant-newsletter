@@ -1,0 +1,36 @@
+[33m7345793[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m sanitize slack webhook
+[33mc115462[m posts in linkedin
+[33m96d5b50[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m preview from email too
+[33m480c612[m put cloudinary init
+[33m77fca70[m added zip too
+[33mf25572c[m now generates pdf
+[33m4f7314a[m added some decorative elements too
+[33m7e2bf20[m now able to render all slides
+[33mf069f00[m now able to render single slide
+[33m1c747de[m testing single slide
+[33m1334d40[m added resolver in utils
+[33md08a431[m adding icons
+[33mc44182b[m adding templates
+[33m45c9ed4[m linkedin slide begins + themes added
+[33m5b3fb11[m linkedin first draft
+[33m73016b7[m completed linkedin carousel
+[33m1057c65[m made it dynamic sourcing
+[33m8533f7c[m finally added more sources
+[33mf7fc4cf[m adding a v2 for more source of info
+[33me5c4f4b[m added labels
+[33m713cbc8[m added twitter for sources
+[33m9b35183[m added research scoring via ollama
+[33m0d7c089[m added limiter and a week
+[33m43d7291[m tried to reduce vagueness and time of a week
+[33m5e239fe[m added more research sources
+[33mf860a4f[m udpated to email output
+[33m1a52620[m added milestone 2: evaluation, refinement, email template
+[33m1586e85[m added email template
+[33m6ee6041[m Merge branch 'main' of https://github.com/psykickguy/elegant-newsletter
+[33m8da37bf[m Milestone 1 polished
+[33m6ba7255[m Fix clone command link in README
+[33mdfc5b80[m Update README with correct clone command format
+[33m22b056a[m milestone 1 achieved - removed secrets
+[33m51961fc[m done with phase 1 milestone 1
+[33m6c285da[m initial setup
+[33maba77ca[m Initial commit

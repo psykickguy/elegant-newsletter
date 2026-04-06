@@ -13,14 +13,17 @@
     "render:all": "node src/scripts/renderAllSlides.js",
     "generate:pdf": "node src/scripts/generatePdf.js",
     "generate:zip": "node src/scripts/generateZip.js",
-    "upload:assets": "node src/scripts/uploadAssets.js"
+    "upload:assets": "node src/scripts/uploadAssets.js",
+    "publish:linkedin": "node src/scripts/publishToLinkedIn.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "archiver": "^7.0.1",
+    "axios": "^1.14.0",
     "cloudinary": "^2.9.0",
     "dotenv": "^17.4.0",
     "express": "^5.2.1",
+    "form-data": "^4.0.5",
     "lucide-react": "^1.7.0",
     "pdf-lib": "^1.17.1",
     "puppeteer": "^24.40.0",
