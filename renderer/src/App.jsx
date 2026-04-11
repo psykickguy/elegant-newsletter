@@ -11,7 +11,7 @@ export default function App() {
     title: "No Slides Found",
     body: "The renderer did not receive any slide data yet.",
     icon: "sparkles",
-    theme: "dark blue gradient",
+    theme: "lightMinimal",
     layout: "centered-title-centered-body",
     accentColor: "#3B82F6",
   };
@@ -20,11 +20,14 @@ export default function App() {
     resolveSlide(slide);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center overflow-hidden">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center overflow-hidden">
       <div className="w-[1080px] h-[1080px]">
         <LayoutComponent
           title={slide.title}
           body={slide.body}
+          practices={slide.practices}
+          highlight={slide.highlight}
+          cta={slide.cta}
           icon={IconComponent}
           theme={ThemeComponent}
           accentColor={slide.accentColor}

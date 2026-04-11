@@ -13,41 +13,43 @@ export default function CenteredTitleCenteredBody({
 }) {
   return (
     <div
-      className={`w-full h-[1080px] overflow-hidden relative flex flex-col items-center justify-center text-center px-24 ${theme.background}`}
+      className={`w-full h-[1080px] overflow-hidden relative flex items-center justify-center p-16 ${theme.background}`}
     >
-      <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
+      <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-gray-100" />
 
       <GlowOrb
-        className="top-20 left-20 w-[300px] h-[300px]"
-        color="bg-cyan-400/10"
+        className="top-20 left-20 w-[260px] h-[260px]"
+        color="bg-orange-200/30"
       />
 
       <GlowOrb
-        className="bottom-10 right-10 w-[300px] h-[300px]"
-        color="bg-blue-500/10"
+        className="bottom-10 right-10 w-[260px] h-[260px]"
+        color="bg-blue-200/30"
       />
 
-      <DotGrid className="top-16 right-16 w-[240px] h-[240px]" />
+      <DotGrid className="top-16 right-16 w-[220px] h-[220px] opacity-30" />
 
-      <GradientLine className="bottom-32 left-0 w-full h-[2px]" />
+      <GradientLine className="bottom-24 left-0 w-full h-[2px] opacity-30" />
 
       <div
-        className={`relative z-10 mb-12 ${iconContainerStyles.large} ${theme.cardBackground} ${theme.cardBorder} ${theme.accentGlow}`}
+        className={`relative z-10 w-full h-full max-w-[920px] flex flex-col items-center justify-center text-center rounded-[40px] p-16 ${theme.card} ${theme.shadow}`}
       >
-        <Icon className={`${iconSizeStyles.large} ${theme.textSecondary}`} />
+        <div
+          className={`mb-10 ${iconContainerStyles.large} ${theme.section} ${theme.border}`}
+        >
+          <Icon className={`${iconSizeStyles.large} ${theme.accent}`} />
+        </div>
+
+        <h1
+          className={`text-[82px] leading-[0.95] font-bold max-w-[850px] mb-8 ${theme.title}`}
+        >
+          {title}
+        </h1>
+
+        <p className={`text-[32px] leading-[1.5] max-w-[760px] ${theme.body}`}>
+          {body}
+        </p>
       </div>
-
-      <h1
-        className={`relative z-10 text-[88px] leading-[0.95] font-bold max-w-[850px] mb-10 ${theme.textPrimary}`}
-      >
-        {title}
-      </h1>
-
-      <p
-        className={`relative z-10 text-[34px] leading-[1.5] max-w-[760px] ${theme.mutedText}`}
-      >
-        {body}
-      </p>
     </div>
   );
 }

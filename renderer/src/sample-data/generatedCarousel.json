@@ -3,63 +3,71 @@
   "slides": [
     {
       "slideNumber": 1,
-      "title": "Biggest Frontend and AI Trends",
-      "body": "AI agents are growing, changing how we code.",
-      "imagePrompt": "A futuristic room with a single glowing code screen.",
-      "icon": "cloud",
-      "theme": "futuristic cyan glow",
-      "accentColor": "#03A9F4",
-      "layout": "title-top text-bottom"
+      "title": "Modern Frontend Best Practices",
+      "body": "Keep UI and business logic separate for maintainability.",
+      "imagePrompt": "A clean white workspace with frontend architecture diagrams, UI cards, and orange accent highlights.",
+      "icon": "layers",
+      "theme": "lightMinimal",
+      "accentColor": "#F97316",
+      "layout": "centered-title-centered-body"
     },
     {
       "slideNumber": 2,
-      "title": "Frontend Architecture Trends",
-      "body": "Tail-call interpreter in Rust and server-side rendering.",
-      "imagePrompt": "A diagram showing the flow of data between a server and client.",
-      "icon": "database",
-      "theme": "minimal white and gray",
-      "accentColor": "#F7F7F7",
-      "layout": "split-left-text-right-image"
+      "title": "Best Practices for Frontend Architecture",
+      "practices": [
+        "Keep UI and business logic separate",
+        "Use reusable components",
+        "Write tests for critical flows",
+        "Document components in Storybook",
+        "Avoid large monolithic files"
+      ],
+      "highlight": "Reusable architecture improves scaling and maintenance.",
+      "cta": "Use these principles in every frontend project.",
+      "imagePrompt": "A modern SaaS dashboard showing frontend best practices, reusable UI cards, documentation panels, and testing workflows.",
+      "icon": "layers",
+      "theme": "modernSaaS",
+      "accentColor": "#06B6D4",
+      "layout": "best-practices"
     },
     {
       "slideNumber": 3,
-      "title": "AI Agents Reshaping UI Work",
-      "body": "OpenClaw vs. Hermes Agent: Which is the best?",
-      "imagePrompt": "A side-by-side comparison of two AI agents.",
-      "icon": "brain",
-      "theme": "dark blue gradient",
-      "accentColor": "#3B82F6",
-      "layout": "title-top text-bottom"
+      "title": "Frontend Architecture Trends",
+      "body": "Server rendering and edge runtimes are reshaping frontend performance.",
+      "imagePrompt": "A modern enterprise diagram showing frontend rendering pipelines, server components, and edge runtimes.",
+      "icon": "server",
+      "theme": "cleanEnterprise",
+      "accentColor": "#2563EB",
+      "layout": "centered-title-centered-body"
     },
     {
       "slideNumber": 4,
-      "title": "Emerging Developer Tooling",
-      "body": "Vercel AI SDK, pgEdge MCP, and Edge Runtimes.",
-      "imagePrompt": "A collage of logos from different companies.",
-      "icon": "server",
-      "theme": "black and purple neon",
+      "title": "AI Agents Reshaping UI Work",
+      "body": "AI agents are helping teams automate workflows and UI generation.",
+      "imagePrompt": "A premium white interface with AI workflow diagrams, floating UI cards, and futuristic assistant visuals.",
+      "icon": "brain",
+      "theme": "whiteGlassmorphism",
       "accentColor": "#8B5CF6",
       "layout": "centered-title-centered-body"
     },
     {
       "slideNumber": 5,
-      "title": "What's Next in AI Trends",
-      "body": "Persistent AI agents, MCP ecosystems, and edge runtimes.",
-      "imagePrompt": "A futuristic illustration of a city with flying robots.",
-      "icon": "rocket",
-      "theme": "midnight AI theme",
-      "accentColor": "#10B981",
-      "layout": "title-top text-bottom"
+      "title": "Modern Developer Tooling",
+      "body": "Teams are choosing faster, simpler, and more focused tools.",
+      "imagePrompt": "A clean workspace with modern tooling dashboards, analytics cards, and orange-blue highlights.",
+      "icon": "monitor",
+      "theme": "elegantOrangeBlue",
+      "accentColor": "#F97316",
+      "layout": "centered-title-centered-body"
     },
     {
       "slideNumber": 6,
       "title": "Stay Ahead with Elegant Frontend",
       "body": "Follow us for weekly insights on frontend architecture, AI agents, and developer tooling.",
-      "imagePrompt": "A simple logo of Elegant Frontend.",
-      "icon": "layers",
-      "theme": "dark glassmorphism",
-      "accentColor": "#14B8A6",
-      "layout": "title-top text-bottom"
+      "imagePrompt": "A premium modern SaaS landing page with clean typography, white cards, and subtle orange-blue branding.",
+      "icon": "rocket",
+      "theme": "modernSaaS",
+      "accentColor": "#2563EB",
+      "layout": "centered-title-centered-body"
     }
   ]
 }

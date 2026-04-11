@@ -1,0 +1,15 @@
+export const brandConfig = {
+  companyName: "Elegant Newsletter",
+  primaryColor: "#F97316",
+  secondaryColor: "#2563EB",
+  backgroundColor: "#FFFFFF",
+  surfaceColor: "#F9FAFB",
+  cardColor: "#FFFFFF",
+  textPrimary: "#111827",
+  textSecondary: "#6B7280",
+  borderColor: "#E5E7EB",
+  successColor: "#22C55E",
+  warningColor: "#F59E0B",
+  dangerColor: "#EF4444",
+  shadowColor: "rgba(15, 23, 42, 0.08)",
+};

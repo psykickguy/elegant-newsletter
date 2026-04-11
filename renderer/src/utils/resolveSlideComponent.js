@@ -7,7 +7,7 @@ export function resolveLayout(layoutName) {
 }
 
 export function resolveTheme(themeName) {
-  return themeMap[themeName] || themeMap["dark blue gradient"];
+  return themeMap[themeName] || themeMap.lightMinimal;
 }
 
 export function resolveIcon(iconName) {
