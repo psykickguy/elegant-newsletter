@@ -1,5 +1,6 @@
 import generatedCarousel from "./sample-data/generatedCarousel.json";
 import { resolveSlide } from "./utils/resolveSlideComponent";
+import DownloadLinksCard from "./components/DownloadLinksCard";
 
 export default function App() {
   const carouselSlides = generatedCarousel.slides || [];
@@ -16,12 +17,19 @@ export default function App() {
     accentColor: "#3B82F6",
   };
 
+  const result = {
+    pdfUrl: "https://example.com/sample.pdf",
+    zipUrl: "https://example.com/sample.zip",
+    slideUrls: ["https://example.com/slide-1.png"],
+    linkedinPostUrl: "https://linkedin.com",
+  };
+
   const { LayoutComponent, ThemeComponent, IconComponent } =
     resolveSlide(slide);
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center overflow-hidden">
-      <div className="w-[1080px] h-[1080px]">
+    <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center gap-10 p-10 overflow-auto">
+      <div className="w-[1080px] h-[1080px] shrink-0">
         <LayoutComponent
           title={slide.title}
           body={slide.body}
@@ -34,6 +42,13 @@ export default function App() {
           accentColor={slide.accentColor}
         />
       </div>
+
+      <DownloadLinksCard
+        pdfUrl={result.pdfUrl}
+        zipUrl={result.zipUrl}
+        slideUrls={result.slideUrls}
+        linkedinPostUrl={result.linkedinPostUrl}
+      />
     </div>
   );
 }

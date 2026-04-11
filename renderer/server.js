@@ -55,14 +55,15 @@ app.post("/render-carousel", async (req, res) => {
     return res.json({
       success: true,
 
-      slideUrls: uploadedAssets.slides,
-      pdfUrl: uploadedAssets.pdf,
-      zipUrl: uploadedAssets.zip,
+      slideUrls: uploadedAssets.slides || [],
+      pdfUrl: uploadedAssets.pdf || null,
+      zipUrl: uploadedAssets.zip || null,
 
-      textFiles: uploadedAssets.textFiles,
-      metadataFiles: uploadedAssets.metadataFiles,
+      textFiles: uploadedAssets.textFiles || [],
+      metadataFiles: uploadedAssets.metadataFiles || [],
 
-      linkedinPostUrl: linkedinData.linkedinPostUrl || null,
+      linkedinPostUrl: linkedinData.linkedinPostUrl || "https://linkedin.com",
+
       linkedinPostUrn: linkedinData.linkedinPostUrn || null,
       linkedinDocumentUrn: linkedinData.linkedinDocumentUrn || null,
 
