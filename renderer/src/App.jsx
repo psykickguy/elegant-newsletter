@@ -28,6 +28,7 @@ export default function App() {
           practices={slide.practices}
           highlight={slide.highlight}
           cta={slide.cta}
+          terms={slide.terms}
           icon={IconComponent}
           theme={ThemeComponent}
           accentColor={slide.accentColor}

@@ -31,13 +31,30 @@
     },
     {
       "slideNumber": 3,
-      "title": "Frontend Architecture Trends",
-      "body": "Server rendering and edge runtimes are reshaping frontend performance.",
-      "imagePrompt": "A modern enterprise diagram showing frontend rendering pipelines, server components, and edge runtimes.",
-      "icon": "server",
+      "title": "Frontend Terminology",
+      "terms": [
+        {
+          "term": "Container",
+          "definition": "Reusable isolated environment for deploying applications."
+        },
+        {
+          "term": "State Management",
+          "definition": "A system for handling data across UI components."
+        },
+        {
+          "term": "Storybook",
+          "definition": "A tool for previewing UI components in isolation."
+        },
+        {
+          "term": "SSR",
+          "definition": "Rendering HTML on the server before sending it to users."
+        }
+      ],
+      "imagePrompt": "A modern SaaS terminology slide with clean UI cards, technical definitions, and enterprise design styling.",
+      "icon": "database",
       "theme": "cleanEnterprise",
       "accentColor": "#2563EB",
-      "layout": "centered-title-centered-body"
+      "layout": "terminology"
     },
     {
       "slideNumber": 4,
