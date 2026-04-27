@@ -1,90 +1,65 @@
 {
-  "carousel_title": "Frontend and AI Shifts: What's Next?",
+  "carousel_title": "Biggest Frontend and AI Shifts This Week: What You Need to Know",
   "slides": [
     {
       "slideNumber": 1,
-      "title": "Modern Frontend Best Practices",
-      "body": "Keep UI and business logic separate for maintainability.",
-      "imagePrompt": "A clean white workspace with frontend architecture diagrams, UI cards, and orange accent highlights.",
-      "icon": "layers",
-      "theme": "lightMinimal",
-      "accentColor": "#F97316",
-      "layout": "centered-title-centered-body"
+      "title": "Cloudflare Sandboxes Reach General Availability, Giving AI Agents Persistent Isolated Environments",
+      "body": "Persistent isolated environments for AI agents, revolutionizing frontend development",
+      "imagePrompt": "Futuristic AI agents in a sandbox environment",
+      "icon": "bot",
+      "theme": "futuristic cyan glow",
+      "accentColor": "#03A9F4",
+      "layout": "title-top-text-bottom"
     },
     {
       "slideNumber": 2,
-      "title": "Best Practices for Frontend Architecture",
-      "practices": [
-        "Keep UI and business logic separate",
-        "Use reusable components",
-        "Write tests for critical flows",
-        "Document components in Storybook",
-        "Avoid large monolithic files"
-      ],
-      "highlight": "Reusable architecture improves scaling and maintenance.",
-      "cta": "Use these principles in every frontend project.",
-      "imagePrompt": "A modern SaaS dashboard showing frontend best practices, reusable UI cards, documentation panels, and testing workflows.",
+      "title": "Frontend Architecture Trends: React Navigation 8.0 Alpha",
+      "body": "Native bottom tabs, reworked TypeScript inference, and history in the latest React Navigation alpha",
+      "imagePrompt": "React Navigation logo with native bottom tabs",
       "icon": "layers",
-      "theme": "modernSaaS",
-      "accentColor": "#06B6D4",
-      "layout": "best-practices"
+      "theme": "minimal white and gray",
+      "accentColor": "#F7F7F7",
+      "layout": "split-left-text-right-image"
     },
     {
       "slideNumber": 3,
-      "title": "Frontend Terminology",
-      "terms": [
-        {
-          "term": "Container",
-          "definition": "Reusable isolated environment for deploying applications."
-        },
-        {
-          "term": "State Management",
-          "definition": "A system for handling data across UI components."
-        },
-        {
-          "term": "Storybook",
-          "definition": "A tool for previewing UI components in isolation."
-        },
-        {
-          "term": "SSR",
-          "definition": "Rendering HTML on the server before sending it to users."
-        }
-      ],
-      "imagePrompt": "A modern SaaS terminology slide with clean UI cards, technical definitions, and enterprise design styling.",
-      "icon": "database",
-      "theme": "cleanEnterprise",
-      "accentColor": "#2563EB",
-      "layout": "terminology"
+      "title": "AI Agents Reshaping UI Work: OpenAI's Workspace Agents",
+      "body": "Always-on agents for seamless team handoffs and improved collaboration",
+      "imagePrompt": "OpenAI's Workspace Agent in action",
+      "icon": "brain",
+      "theme": "midnight AI theme",
+      "accentColor": "#1A1D23",
+      "layout": "title-top-icon-center"
     },
     {
       "slideNumber": 4,
-      "title": "AI Agents Reshaping UI Work",
-      "body": "AI agents are helping teams automate workflows and UI generation.",
-      "imagePrompt": "A premium white interface with AI workflow diagrams, floating UI cards, and futuristic assistant visuals.",
-      "icon": "brain",
-      "theme": "whiteGlassmorphism",
-      "accentColor": "#8B5CF6",
-      "layout": "centered-title-centered-body"
+      "title": "Emerging Developer Tooling: GitHub Restricts Copilot Usage",
+      "body": "AI coding drives up compute demand, prompting GitHub to restrict Copilot sign-ups",
+      "imagePrompt": "GitHub's Copilot logo with a warning symbol",
+      "icon": "shield",
+      "theme": "dark blue gradient",
+      "accentColor": "#2B4CAF",
+      "layout": "full-background-image-overlay-text"
     },
     {
       "slideNumber": 5,
-      "title": "Modern Developer Tooling",
-      "body": "Teams are choosing faster, simpler, and more focused tools.",
-      "imagePrompt": "A clean workspace with modern tooling dashboards, analytics cards, and orange-blue highlights.",
-      "icon": "monitor",
-      "theme": "elegantOrangeBlue",
-      "accentColor": "#F97316",
-      "layout": "centered-title-centered-body"
+      "title": "What's Next: Persistent AI Agents and MCP Ecosystems",
+      "body": "Edge runtimes, server rendering, and AI workflows on the horizon, driven by persistent AI agents and MCP ecosystems",
+      "imagePrompt": "Futuristic AI agents in a cloud environment with edge runtime logos",
+      "icon": "rocket",
+      "theme": "dark glassmorphism",
+      "accentColor": "#212121",
+      "layout": "title-top-text-bottom"
     },
     {
       "slideNumber": 6,
-      "title": "Stay Ahead with Elegant Frontend",
-      "body": "Follow us for weekly insights on frontend architecture, AI agents, and developer tooling.",
-      "imagePrompt": "A premium modern SaaS landing page with clean typography, white cards, and subtle orange-blue branding.",
-      "icon": "rocket",
-      "theme": "modernSaaS",
-      "accentColor": "#2563EB",
-      "layout": "centered-title-centered-body"
+      "title": "Follow Elegant Frontend for Weekly Insights on Frontend Architecture, AI Agents, and Developer Tooling",
+      "body": "Stay ahead of the curve with our expert analysis and industry insights",
+      "imagePrompt": "Elegant Frontend logo with a futuristic background",
+      "icon": "code",
+      "theme": "futuristic cyan glow",
+      "accentColor": "#03A9F4",
+      "layout": "title-top-text-bottom"
     }
   ]
 }

@@ -10,7 +10,12 @@ if (!fs.existsSync(outputDir)) {
 
 async function renderSlide() {
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+    ],
   });
 
   const page = await browser.newPage();
@@ -21,7 +26,7 @@ async function renderSlide() {
     deviceScaleFactor: 1,
   });
 
-  await page.goto("http://localhost:5173", {
+  await page.goto("http://host.docker.internal:5173", {
     waitUntil: "networkidle0",
   });
 

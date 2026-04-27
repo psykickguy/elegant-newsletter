@@ -8,13 +8,156 @@ dotenv.config();
 const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
 const author = process.env.LINKEDIN_AUTHOR_URN;
 
+/** YYYYMM — LinkedIn rejects inactive versions with 426 NONEXISTENT_VERSION */
+const DEFAULT_VERSION_CANDIDATES = [
+  "202509",
+  "202510",
+  "202511",
+  "202512",
+  "202601",
+  "202602",
+  "202603",
+  "202604",
+];
+
+function normalizeLinkedInVersion(version) {
+  if (!version) return null;
+  const digitsOnly = String(version).replace(/\D/g, "");
+  if (digitsOnly.length >= 6) {
+    return digitsOnly.slice(0, 6);
+  }
+  return null;
+}
+
+const envVersion = normalizeLinkedInVersion(process.env.LINKEDIN_API_VERSION);
+const versionCandidates = envVersion
+  ? [envVersion, ...DEFAULT_VERSION_CANDIDATES.filter((v) => v !== envVersion)]
+  : [...DEFAULT_VERSION_CANDIDATES];
+
 const outputDir = path.join(process.cwd(), "src/output");
 
 const pdfPath = path.join(outputDir, "carousel.pdf");
 const postTextPath = path.join(outputDir, "linkedin-post.txt");
 const outputJsonPath = path.join(outputDir, "linkedin-post.json");
 
+const DOCUMENT_POLL_MS = 120_000;
+const DOCUMENT_POLL_INTERVAL_MS = 2_000;
+
+function getLinkedInHeaders(version) {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    "LinkedIn-Version": version,
+    "X-Restli-Protocol-Version": "2.0.0",
+    "Content-Type": "application/json",
+  };
+}
+
+function isNonexistentVersionError(error) {
+  return (
+    error?.response?.status === 426 &&
+    error?.response?.data?.code === "NONEXISTENT_VERSION"
+  );
+}
+
+/**
+ * Tries `versionCandidates` until a call succeeds or a non-version error is thrown.
+ * @param {(v: string) => Promise<import("axios").AxiosResponse>} fn
+ */
+async function withVersionCandidates(fn) {
+  let lastError;
+  for (const v of versionCandidates) {
+    try {
+      return { version: v, response: await fn(v) };
+    } catch (error) {
+      lastError = error;
+      if (isNonexistentVersionError(error)) {
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError;
+}
+
+function buildErrorResponse(error, stage, extras = {}) {
+  return {
+    success: false,
+    rendererStatus: "rendered",
+    linkedinPublishStatus: "failed",
+    linkedinDocumentUrn: extras.documentUrn || null,
+    linkedinPostUrn: null,
+    linkedinPostUrl: null,
+    linkedinError: error.message,
+    linkedinFailedStage: stage,
+    details: error.response?.data || null,
+    responseStatus: error.response?.status || null,
+    responseHeaders: error.response?.headers || null,
+    publishedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * @see https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/documents-api
+ * Document must be AVAILABLE before POST /rest/posts or LinkedIn may return 5xx.
+ */
+async function waitForDocumentAvailable(documentUrn, linkedinVersion) {
+  const deadline = Date.now() + DOCUMENT_POLL_MS;
+
+  while (Date.now() < deadline) {
+    const { data } = await axios.get(
+      `https://api.linkedin.com/rest/documents/${encodeURIComponent(documentUrn)}`,
+      { headers: getLinkedInHeaders(linkedinVersion) },
+    );
+
+    const status = data?.status;
+
+    if (status === "AVAILABLE") {
+      return data;
+    }
+
+    if (status === "PROCESSING_FAILED") {
+      throw new Error(
+        `LinkedIn document processing failed: ${JSON.stringify(data)}`,
+      );
+    }
+
+    await new Promise((r) => setTimeout(r, DOCUMENT_POLL_INTERVAL_MS));
+  }
+
+  throw new Error(
+    `LinkedIn document did not become AVAILABLE within ${DOCUMENT_POLL_MS / 1000}s; last URN: ${documentUrn}`,
+  );
+}
+
+/**
+ * @see same doc — 201 + post id in `x-restli-id`
+ */
+function extractPostUrnFromResponse(postResponse) {
+  const raw =
+    postResponse.headers["x-restli-id"] ||
+    postResponse.data?.id ||
+    postResponse.headers["x-linkedin-id"] ||
+    null;
+
+  if (!raw) return null;
+
+  if (String(raw).startsWith("urn:li:share:")) {
+    return String(raw);
+  }
+  if (String(raw).startsWith("urn:li:ugcPost:")) {
+    return String(raw);
+  }
+  return `urn:li:share:${raw}`;
+}
+
+function postUrlFromUrn(urn) {
+  if (!urn) return null;
+  return `https://www.linkedin.com/feed/update/${encodeURIComponent(urn)}/`;
+}
+
 async function publishToLinkedIn() {
+  let documentUrn = null;
+
   try {
     if (!accessToken) {
       throw new Error("Missing LINKEDIN_ACCESS_TOKEN in .env");
@@ -37,32 +180,31 @@ async function publishToLinkedIn() {
       postText = fs.readFileSync(postTextPath, "utf-8");
     }
 
+    const docTitle = path.basename(pdfPath);
+
     console.log("Initializing LinkedIn document upload...");
 
-    const initializeResponse = await axios.post(
-      "https://api.linkedin.com/rest/documents?action=initializeUpload",
-      {
-        initializeUploadRequest: {
-          owner: author,
-        },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "LinkedIn-Version": "202504",
-          "X-Restli-Protocol-Version": "2.0.0",
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    const { version: activeVersion, response: initializeResponse } =
+      await withVersionCandidates((v) =>
+        axios.post(
+          "https://api.linkedin.com/rest/documents?action=initializeUpload",
+          {
+            initializeUploadRequest: {
+              owner: author,
+            },
+          },
+          { headers: getLinkedInHeaders(v) },
+        ),
+      );
 
     const uploadUrl =
       initializeResponse.data.value.uploadUrl ||
       initializeResponse.data.value.uploadInstructions?.[0]?.uploadUrl;
 
-    const documentUrn =
+    documentUrn =
       initializeResponse.data.value.document ||
-      initializeResponse.data.value.documentUrn;
+      initializeResponse.data.value.documentUrn ||
+      null;
 
     if (!uploadUrl || !documentUrn) {
       throw new Error("Failed to get uploadUrl or document URN from LinkedIn");
@@ -70,6 +212,7 @@ async function publishToLinkedIn() {
 
     console.log("LinkedIn document initialized successfully.");
     console.log("Document URN:", documentUrn);
+    console.log("Using LinkedIn-Version:", activeVersion);
 
     console.log("Uploading PDF to LinkedIn...");
 
@@ -82,10 +225,13 @@ async function publishToLinkedIn() {
       maxContentLength: Infinity,
     });
 
-    console.log("PDF uploaded successfully.");
+    console.log("PDF upload finished. Waiting for document to be AVAILABLE...");
 
-    console.log("Creating LinkedIn post...");
+    await waitForDocumentAvailable(documentUrn, activeVersion);
 
+    console.log("Document is AVAILABLE. Creating LinkedIn post...");
+
+    // Official example from Microsoft Learn (Documents API → Create Document content)
     const postPayload = {
       author,
       commentary: postText,
@@ -97,7 +243,7 @@ async function publishToLinkedIn() {
       },
       content: {
         media: {
-          title: "Weekly Carousel",
+          title: docTitle,
           id: documentUrn,
         },
       },
@@ -108,43 +254,21 @@ async function publishToLinkedIn() {
     const postResponse = await axios.post(
       "https://api.linkedin.com/rest/posts",
       postPayload,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "LinkedIn-Version": "202504",
-          "X-Restli-Protocol-Version": "2.0.0",
-          "Content-Type": "application/json",
-        },
-      },
+      { headers: getLinkedInHeaders(activeVersion) },
     );
 
-    console.log("Post response headers:", postResponse.headers);
+    console.log("Post response status:", postResponse.status);
     console.log("Post response data:", postResponse.data);
 
-    const rawLinkedinPostUrn =
-      postResponse.data?.id ||
-      postResponse.headers["x-linkedin-id"] ||
-      postResponse.headers["linkedin-id"] ||
-      postResponse.headers["x-restli-id"] ||
-      null;
-
-    const cleanedPostUrn =
-      typeof rawLinkedinPostUrn === "string" &&
-      !rawLinkedinPostUrn.startsWith("urn:")
-        ? `urn:li:share:${rawLinkedinPostUrn}`
-        : rawLinkedinPostUrn;
-
-    const linkedinPostUrl = cleanedPostUrn
-      ? `https://www.linkedin.com/feed/update/${encodeURIComponent(
-          cleanedPostUrn,
-        )}/`
-      : null;
+    const cleanedPostUrn = extractPostUrnFromResponse(postResponse);
+    const linkedinPostUrl = postUrlFromUrn(cleanedPostUrn);
 
     const outputData = {
       success: true,
 
       rendererStatus: "published",
       linkedinPublishStatus: "published",
+      linkedinApiVersion: activeVersion,
 
       linkedinDocumentUrn: documentUrn,
       linkedinPostUrn: cleanedPostUrn,
@@ -162,31 +286,16 @@ async function publishToLinkedIn() {
     fs.writeFileSync(outputJsonPath, JSON.stringify(outputData, null, 2));
 
     console.log("LinkedIn post published successfully.");
-    console.log("Raw Post URN:", rawLinkedinPostUrn);
-    console.log("Cleaned Post URN:", cleanedPostUrn);
+    console.log("Post URN:", cleanedPostUrn);
     console.log("Post URL:", linkedinPostUrl);
     console.log("Saved response to:", outputJsonPath);
 
     console.log(JSON.stringify(outputData, null, 2));
   } catch (error) {
     console.error("Failed to publish LinkedIn post");
-
-    const errorData = {
-      success: false,
-
-      rendererStatus: "rendered",
-      linkedinPublishStatus: "failed",
-
-      linkedinDocumentUrn: null,
-      linkedinPostUrn: null,
-      linkedinPostUrl: null,
-
-      linkedinError: error.message,
-      details: error.response?.data || null,
-      responseHeaders: error.response?.headers || null,
-
-      publishedAt: new Date().toISOString(),
-    };
+    const errorData = buildErrorResponse(error, "publish_to_linkedin", {
+      documentUrn,
+    });
 
     fs.writeFileSync(outputJsonPath, JSON.stringify(errorData, null, 2));
 

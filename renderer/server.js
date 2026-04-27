@@ -62,13 +62,15 @@ app.post("/render-carousel", async (req, res) => {
       textFiles: uploadedAssets.textFiles || [],
       metadataFiles: uploadedAssets.metadataFiles || [],
 
-      linkedinPostUrl: linkedinData.linkedinPostUrl || "https://linkedin.com",
+      linkedinPostUrl: linkedinData.linkedinPostUrl ?? null,
 
       linkedinPostUrn: linkedinData.linkedinPostUrn || null,
       linkedinDocumentUrn: linkedinData.linkedinDocumentUrn || null,
 
       linkedinPublishStatus:
         linkedinData.linkedinPublishStatus || "not_attempted",
+
+      linkedinError: linkedinData.linkedinError || null, // ADD THIS
 
       linkedinPublishedAt: linkedinData.publishedAt || new Date().toISOString(),
 

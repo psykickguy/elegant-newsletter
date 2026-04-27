@@ -11,7 +11,12 @@ if (!fs.existsSync(outputDir)) {
 
 async function renderSlides() {
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+    ],
   });
 
   const page = await browser.newPage();
@@ -31,7 +36,7 @@ async function renderSlides() {
   }
 
   for (let i = 0; i < totalSlides; i++) {
-    const url = `http://localhost:5173?slide=${i}`;
+    const url = `http://host.docker.internal:5173?slide=${i}`;
 
     console.log(`Rendering slide ${i + 1} of ${totalSlides}...`);
 
