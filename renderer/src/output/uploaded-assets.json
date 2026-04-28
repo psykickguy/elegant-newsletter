@@ -2,31 +2,31 @@
   "slides": [
     {
       "file": "slide-1.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777326930/elegant-newsletter/slide-1.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777328045/elegant-newsletter/slide-1.png"
     },
     {
       "file": "slide-2.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777326931/elegant-newsletter/slide-2.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777328046/elegant-newsletter/slide-2.png"
     },
     {
       "file": "slide-3.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777326932/elegant-newsletter/slide-3.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777328047/elegant-newsletter/slide-3.png"
     },
     {
       "file": "slide-4.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777326933/elegant-newsletter/slide-4.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777328048/elegant-newsletter/slide-4.png"
     },
     {
       "file": "slide-5.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777326933/elegant-newsletter/slide-5.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777328049/elegant-newsletter/slide-5.png"
     },
     {
       "file": "slide-6.png",
-      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777326934/elegant-newsletter/slide-6.png"
+      "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777328050/elegant-newsletter/slide-6.png"
     }
   ],
-  "pdf": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777326927/elegant-newsletter/carousel.pdf",
-  "zip": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777326926/elegant-newsletter/carousel-assets.zip",
+  "pdf": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777328043/elegant-newsletter/carousel.pdf",
+  "zip": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777328042/elegant-newsletter/carousel-assets.zip",
   "textFiles": [
     {
       "file": "linkedin-post.txt",
@@ -36,7 +36,7 @@
   "metadataFiles": [
     {
       "file": "linkedin-post.json",
-      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777326928/elegant-newsletter/linkedin-post.json"
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777328043/elegant-newsletter/linkedin-post.json"
     },
     {
       "file": "metadata.json",
@@ -44,7 +44,7 @@
     },
     {
       "file": "uploaded-assets.json",
-      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777326935/elegant-newsletter/uploaded-assets.json"
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777328050/elegant-newsletter/uploaded-assets.json"
     }
   ]
 }

@@ -34,6 +34,19 @@
       }
     },
     {
+      "parameters": {
+        "jsCode": "const normalizeUrl = (u) =>\n  String(u || \"\")\n    .trim()\n    .replace(/\\/+$/, \"\")\n    .toLowerCase();\n\nconst TOPIC_QUERIES = [\"frontend architecture\",\"web performance optimization\",\"react server components\",\"next.js release\",\"vite ecosystem\",\"typescript tooling\",\"javascript runtime bun deno node\",\"css rendering engine browser\",\"edge runtime web framework\",\"webassembly frontend\",\"ai coding assistant\",\"llm inference open source\",\"agentic workflow developer tools\",\"ai agents software engineering\",\"retrieval augmented generation production\",\"developer productivity tooling\",\"open source release engineering\",\"cloudflare vercel platform updates\",\"github copilot developer workflow\",\"frontend compiler bundler\",\"web security cve javascript\",\"ui framework release notes\",\"browser api shipping stable\",\"observability frontend performance\",\"database for developers postgres supabase\",\"vector database embeddings llm\",\"engineering blog frontend\",\"ai infrastructure startup funding\",\"model context protocol mcp\",\"multi agent orchestration\",\"prompt engineering workflows\",\"benchmark inference latency\"];\nconst DYNAMIC_WINDOW_DAYS = 7;\nconst DISCOVERY_SCORE_THRESHOLD = 75;\nconst DYNAMIC_TOPIC_LIMIT = 36;\nconst ROTATING_WINDOW = 12;\n\nconst STOP_WORDS = new Set([\n  \"the\",\"and\",\"for\",\"with\",\"from\",\"that\",\"this\",\"into\",\"your\",\"you\",\"are\",\"how\",\"why\",\"what\",\"when\",\n  \"take\",\"takes\",\"like\",\"new\",\"news\",\"over\",\"under\",\"more\",\"less\",\"real\",\"story\",\"week\",\"weeks\",\n  \"about\",\"after\",\"before\",\"than\",\"then\",\"they\",\"them\",\"their\",\"our\",\"out\",\"all\",\"can\",\"not\",\"but\",\n  \"use\",\"using\",\"used\",\"via\",\"vs\",\"its\",\"it\",\"on\",\"in\",\"of\",\"to\",\"a\",\"an\",\"is\",\"be\",\"as\",\"at\",\"by\",\n  \"launch\",\"launches\",\"launching\",\"announces\",\"debuts\",\"brings\",\"plans\",\"reacts\",\"veteran\",\"big\",\"end\",\n  \"openai\",\"cursor\",\"github\",\"linux\",\"ubuntu\",\"gpt\",\"agents\",\"agent\",\"ai\",\"llm\"\n]);\n\nconst tick = Math.floor(Date.now() / (1000 * 60 * 15));\nconst now = Date.now();\nconst minCreatedAt = now - DYNAMIC_WINDOW_DAYS * 24 * 60 * 60 * 1000;\n\nconst tokenize = (text) => {\n  return String(text || \"\")\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, \" \")\n    .split(/\\s+/)\n    .map((t) => t.trim())\n    .filter((t) => t.length >= 3 && !STOP_WORDS.has(t));\n};\n\nconst addWeight = (bucket, key, amount) => {\n  if (!key) return;\n  bucket.set(key, (bucket.get(key) || 0) + amount);\n};\n\nconst getAllInputs = () => {\n  const combined = [];\n  for (let idx = 0; idx < 4; idx++) {\n    try {\n      const rows = $input.all(idx);\n      if (Array.isArray(rows) && rows.length) combined.push(...rows);\n    } catch {\n      // Input index does not exist in this run.\n    }\n  }\n  return combined;\n};\n\nconst looksLikeDiscovery = (row) => {\n  if (!row || typeof row !== \"object\") return false;\n  return (\n    row.score !== undefined ||\n    row.base_score !== undefined ||\n    row.tags !== undefined ||\n    row.title !== undefined\n  );\n};\n\nconst scoreForDiscovery = (row) => {\n  const score = Number(row.score ?? row.base_score ?? 0);\n  if (!Number.isFinite(score)) return 0;\n  return score;\n};\n\nconst parseCreatedAt = (row) => {\n  const stamp = Date.parse(row.created_at || row.createdAt || \"\");\n  return Number.isFinite(stamp) ? stamp : 0;\n};\n\nconst buildDynamicQueries = (discoveries) => {\n  const unigram = new Map();\n  const bigram = new Map();\n\n  for (const d of discoveries) {\n    const score = scoreForDiscovery(d);\n    const createdAt = parseCreatedAt(d);\n    if (score < DISCOVERY_SCORE_THRESHOLD) continue;\n    if (createdAt && createdAt < minCreatedAt) continue;\n\n    const recencyBoost = createdAt ? Math.max(1, 1 + (createdAt - minCreatedAt) / (DYNAMIC_WINDOW_DAYS * 24 * 60 * 60 * 1000)) : 1;\n    const weight = score * recencyBoost;\n\n    const titleTokens = tokenize(d.title);\n    const tagTokens = Array.isArray(d.tags) ? d.tags.flatMap((t) => tokenize(t)) : [];\n    const categoryTokens = tokenize(d.category);\n    const tokens = [...new Set([...titleTokens, ...tagTokens, ...categoryTokens])];\n\n    for (const token of tokens) addWeight(unigram, token, weight);\n    for (let i = 0; i < tokens.length - 1; i++) {\n      addWeight(bigram, `${tokens[i]} ${tokens[i + 1]}`, weight + 8);\n    }\n  }\n\n  const topBigrams = [...bigram.entries()]\n    .sort((a, b) => b[1] - a[1])\n    .slice(0, 18)\n    .map(([k]) => k);\n  const topUnigrams = [...unigram.entries()]\n    .sort((a, b) => b[1] - a[1])\n    .slice(0, 24)\n    .map(([k]) => k);\n\n  const generated = [];\n  for (const phrase of topBigrams) {\n    generated.push(phrase);\n    generated.push(`${phrase} developer tools`);\n  }\n  for (const token of topUnigrams) {\n    generated.push(`${token} engineering`);\n    generated.push(`${token} production`);\n  }\n\n  const deduped = [...new Set(generated.map((q) => q.trim()).filter(Boolean))];\n  return deduped.slice(0, DYNAMIC_TOPIC_LIMIT);\n};\n\nconst allInputItems = getAllInputs();\nconst db = allInputItems\n  .filter((item) => item?.json && item.json.source_url)\n  .map((item) => ({ json: { ...item.json } }));\n\nconst discoveries = allInputItems\n  .map((item) => item?.json || {})\n  .filter((json) => looksLikeDiscovery(json));\n\nconst dynamicQueries = buildDynamicQueries(discoveries);\nconst queryPool = dynamicQueries.length >= 8 ? dynamicQueries : TOPIC_QUERIES;\n\nconst start = tick % queryPool.length;\nconst slice = [];\nfor (let i = 0; i < ROTATING_WINDOW; i++) {\n  slice.push(queryPool[(start + i) % queryPool.length]);\n}\n\nconst ephemeral = slice.map((query, idx) => {\n  const q = encodeURIComponent(query);\n  // Google News RSS search gives latest multi-domain coverage per topic.\n  const source_url = `https://news.google.com/rss/search?q=${q}+when:2d&hl=en-US&gl=US&ceid=US:en`;\n  const depthBonus = /release|benchmark|architecture|runtime|compiler|security|mcp|agent/i.test(query)\n    ? 3\n    : 0;\n  return ({\n  json: {\n    id: `rotating_${tick}_${idx}`,\n    active: true,\n    source_type: \"rss\",\n    source_url,\n    quality_score: 82 + depthBonus,\n    label: `Topic search: ${query}`,\n    dynamic_topic_mode: dynamicQueries.length >= 8,\n    learned_query_count: dynamicQueries.length,\n    created_at: new Date().toISOString(),\n  },\n})});\n\nconst seen = new Set(db.map((i) => normalizeUrl(i.json.source_url)));\nconst out = [...db];\n\nfor (const e of ephemeral) {\n  const u = normalizeUrl(e.json.source_url);\n  if (u && !seen.has(u)) {\n    seen.add(u);\n    out.push(e);\n  }\n}\n\nout.sort((a, b) => (b.json.quality_score || 0) - (a.json.quality_score || 0));\nreturn out.slice(0, 55);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        1200
+      ],
+      "id": "a9f2c1e0-merge-rotating-feeds-rc",
+      "name": "Merge DB + rotating feeds"
+    },
+    {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "name": "Replace Me1",
@@ -525,6 +538,27 @@
       ],
       "id": "f6600eaa-c9e8-41a7-a31b-28ed84e7e4a9",
       "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, title, category, tags, score, base_score, created_at\nFROM discoveries\nWHERE created_at >= NOW() - INTERVAL '7 days'\n  AND COALESCE(score, base_score, 0) >= 75\nORDER BY COALESCE(score, base_score, 0) DESC, created_at DESC\nLIMIT 180;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -48,
+        1392
+      ],
+      "id": "read-high-discoveries-v1",
+      "name": "Read High Discoveries (7d)",
+      "credentials": {
+        "postgres": {
+          "id": "qKU0Tc69L4alq44T",
+          "name": "Postgres account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -544,7 +578,7 @@
       "main": [
         [
           {
-            "node": "Loop Sources",
+            "node": "Merge DB + rotating feeds",
             "type": "main",
             "index": 0
           }
@@ -709,6 +743,28 @@
             "node": "Insert rows in a table1",
             "type": "main",
             "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge DB + rotating feeds": {
+      "main": [
+        [
+          {
+            "node": "Loop Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read High Discoveries (7d)": {
+      "main": [
+        [
+          {
+            "node": "Merge DB + rotating feeds",
+            "type": "main",
+            "index": 1
           }
         ]
       ]

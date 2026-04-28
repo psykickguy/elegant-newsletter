@@ -3,32 +3,32 @@
   "rendererStatus": "published",
   "linkedinPublishStatus": "published",
   "linkedinApiVersion": "202509",
-  "linkedinDocumentUrn": "urn:li:document:D4D10AQFmF5NtCHdalA",
-  "linkedinPostUrn": "urn:li:ugcPost:7454649422879014912",
-  "linkedinPostUrl": "https://www.linkedin.com/feed/update/urn%3Ali%3AugcPost%3A7454649422879014912/",
+  "linkedinDocumentUrn": "urn:li:document:D4D10AQFGj2r4Xrd99w",
+  "linkedinPostUrn": "urn:li:ugcPost:7454654104850558976",
+  "linkedinPostUrl": "https://www.linkedin.com/feed/update/urn%3Ali%3AugcPost%3A7454654104850558976/",
   "linkedinError": null,
   "rawInitializeResponse": {
     "value": {
-      "uploadUrlExpiresAt": 1777413318310,
-      "uploadUrl": "https://www.linkedin.com/dms-uploads/sp/v2/D4D10AQFmF5NtCHdalA/ads-uploadedDocument/B4DZ3Q8IqYIYAA-/0?ca=vector_ads&cn=uploads&iri=B01-77&sync=0&v=beta&ut=2bbYOHhMBz_Yc1",
-      "document": "urn:li:document:D4D10AQFmF5NtCHdalA"
+      "uploadUrlExpiresAt": 1777414434693,
+      "uploadUrl": "https://www.linkedin.com/dms-uploads/sp/v2/D4D10AQFGj2r4Xrd99w/ads-uploadedDocument/B4DZ3RAZN1GcAA-/0?ca=vector_ads&cn=uploads&iri=B01-77&sync=0&v=beta&ut=3Y1ljjllpR_Yc1",
+      "document": "urn:li:document:D4D10AQFGj2r4Xrd99w"
     }
   },
   "rawPostResponse": "",
   "rawPostHeaders": {
-    "location": "/posts/urn%3Ali%3AugcPost%3A7454649422879014912",
-    "x-restli-id": "urn:li:ugcPost:7454649422879014912",
+    "location": "/posts/urn%3Ali%3AugcPost%3A7454654104850558976",
+    "x-restli-id": "urn:li:ugcPost:7454654104850558976",
     "x-restli-protocol-version": "2.0.0",
     "content-length": "0",
-    "date": "Mon, 27 Apr 2026 21:55:23 GMT",
+    "date": "Mon, 27 Apr 2026 22:13:59 GMT",
     "x-li-fabric": "prod-lva1",
     "connection": "keep-alive",
     "x-li-source-fabric": "prod-lor1",
     "x-li-pop": "prod-lor1-x",
     "x-li-proto": "http/1.1",
-    "x-li-uuid": "AAZQeCvlDixaSMiXcyanIw==",
-    "set-cookie": "bcookie=\"v=2&e5fc120c-9218-4dda-8e4d-2df6ba1ac857\"; domain=.linkedin.com; Path=/; Secure; Expires=Tue, 27-Apr-2027 21:55:23 GMT; SameSite=None, lidc=\"b=VB82:s=V:r=V:a=V:p=V:g=10275:u=497:x=1:i=1777326922:t=1777385823:v=2:sig=AQEDcjhANhm1adLOFVPpZozEnOGb4qaX\"",
-    "x-li-route-key": "\"b=VB82:s=V:r=V:a=V:p=V:g=10275:u=497:x=1:i=1777326922:t=1777385823:v=2:sig=AQEDcjhANhm1adLOFVPpZozEnOGb4qaX\""
+    "x-li-uuid": "AAZQeG5uGZqkBbT8pZpRag==",
+    "set-cookie": "bcookie=\"v=2&345278da-e859-4c9d-808a-8092a694d060\"; domain=.linkedin.com; Path=/; Secure; Expires=Tue, 27-Apr-2027 22:13:59 GMT; SameSite=None, lidc=\"b=VB82:s=V:r=V:a=V:p=V:g=10275:u=497:x=1:i=1777328039:t=1777385823:v=2:sig=AQG9jZt8XiYbTfX3Xt5i2bSRSNGMREpu\"",
+    "x-li-route-key": "\"b=VB82:s=V:r=V:a=V:p=V:g=10275:u=497:x=1:i=1777328039:t=1777385823:v=2:sig=AQG9jZt8XiYbTfX3Xt5i2bSRSNGMREpu\""
   },
-  "publishedAt": "2026-04-27T21:55:23.577Z"
+  "publishedAt": "2026-04-27T22:14:00.435Z"
 }
