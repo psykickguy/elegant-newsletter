@@ -1,65 +1,65 @@
 {
-  "carousel_title": "Frontend Trends This Week",
+  "carousel_title": "Frontend and AI Shifts: A Week in Review",
   "slides": [
     {
       "slideNumber": 1,
-      "title": "Frontend Trends",
-      "body": "The biggest shifts in frontend and AI this week.",
-      "imagePrompt": "minimal futuristic dashboard showing frontend trends, AI agents, glowing charts, and modern UI cards",
-      "icon": "monitor",
-      "theme": "dark blue gradient",
+      "title": "AI Homies Unleash SGI Indy Emulator in Rust",
+      "body": "Rust powers SGI Indy emulator, a new frontier in frontend development.",
+      "imagePrompt": "A futuristic image of a person coding on a computer with an SGI console screen in the background.",
+      "icon": "server",
+      "theme": "midnight AI theme",
       "accentColor": "#3B82F6",
-      "layout": "centered-title-centered-body"
+      "layout": "title-top text-bottom"
     },
     {
       "slideNumber": 2,
-      "title": "Privacy Tools",
-      "body": "Marco shows privacy-first products are becoming more important.",
-      "imagePrompt": "minimal privacy dashboard with lock icons, secure browser windows, and dark UI panels",
-      "icon": "shield",
-      "theme": "dark glassmorphism",
-      "accentColor": "#10B981",
-      "layout": "split-left-text-right-image"
+      "title": "Google Cloud Streamlines AI Agent Development with Agents CLI",
+      "body": "Agents CLI simplifies AI agent development on Google Cloud, a major boost for frontend devs.",
+      "imagePrompt": "An image of the Google Cloud logo with a developer working on an AI project in the background.",
+      "icon": "cloud",
+      "theme": "dark blue gradient",
+      "accentColor": "#8B5CF6",
+      "layout": "title-top text-bottom"
     },
     {
       "slideNumber": 3,
-      "title": "Notebook Workflows",
-      "body": "Looseleaf reflects demand for flexible developer workflows.",
-      "imagePrompt": "futuristic notebook workspace with AI workflow diagrams, code snippets, and productivity panels",
+      "title": "OpenChoreo 1.0 Brings AI Agents and GitOps to Kubernetes Developer Platforms",
+      "body": "OpenChoreo automates workflows, making it easier for devs to manage AI agents on Kubernetes.",
+      "imagePrompt": "An image of a person working with Kubernetes and OpenChoreo tools.",
       "icon": "workflow",
-      "theme": "futuristic cyan glow",
-      "accentColor": "#06B6D4",
-      "layout": "title-left-body-right"
+      "theme": "minimal white and gray",
+      "accentColor": "#14B8A6",
+      "layout": "title-top text-bottom"
     },
     {
       "slideNumber": 4,
-      "title": "AI Creation",
-      "body": "TailorToJob shows AI is helping non-developers create faster.",
-      "imagePrompt": "premium AI assistant workspace with glowing automation cards, text generation, and modern UI elements",
-      "icon": "bot",
-      "theme": "black and purple neon",
-      "accentColor": "#8B5CF6",
-      "layout": "title-top-icon-center"
+      "title": "LLM Performance and Evaluations with Legare Kerrison and Cedric Clyburn",
+      "body": "Experts discuss LLM performance, shedding light on the latest AI advancements.",
+      "imagePrompt": "An image of a person talking to experts in an AI conference.",
+      "icon": "brain",
+      "theme": "dark glassmorphism",
+      "accentColor": "#10B981",
+      "layout": "title-top text-bottom"
     },
     {
       "slideNumber": 5,
-      "title": "Big Shift",
-      "body": "Developers want tools that are simpler and more focused.",
-      "imagePrompt": "minimal futuristic workspace with fewer tools, clean interface, focused productivity, and premium dark theme",
-      "icon": "layers",
-      "theme": "modern fintech dark",
-      "accentColor": "#6366F1",
-      "layout": "full-background-image-overlay-text"
+      "title": "Why Postgres is the Future of AI Development for Devs",
+      "body": "Postgres emerges as a top choice for AI development, offering better performance and scalability.",
+      "imagePrompt": "An image of a person working with Postgres on an AI project.",
+      "icon": "database",
+      "theme": "futuristic cyan glow",
+      "accentColor": "#06B6D4",
+      "layout": "title-top text-bottom"
     },
     {
       "slideNumber": 6,
-      "title": "Follow Elegant",
-      "body": "Follow Elegant Frontend for weekly frontend insights.",
-      "imagePrompt": "premium modern frontend newsletter branding with elegant typography, glowing UI cards, and futuristic design",
+      "title": "Stay Ahead with Elegant Frontend: Expert Insights on Frontend Architecture, AI Agents, and Developer Tooling",
+      "body": "Follow us for weekly updates on the latest frontend trends and AI innovations.",
+      "imagePrompt": "An image of a person looking at a tablet with the Elegant Frontend logo on the screen.",
       "icon": "rocket",
-      "theme": "midnight AI theme",
-      "accentColor": "#F59E0B",
-      "layout": "centered-title-centered-body"
+      "theme": "dark blue gradient",
+      "accentColor": "#3B82F6",
+      "layout": "title-top text-bottom"
     }
   ]
 }

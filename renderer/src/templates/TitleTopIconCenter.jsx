@@ -5,13 +5,27 @@ import {
   GradientLine,
   GlassCard,
 } from "../components/DecorativeElements";
+import DynamicVisualScene from "../components/DynamicVisualScene";
 
-export default function TitleTopIconCenter({ title, body, icon: Icon, theme }) {
+export default function TitleTopIconCenter({
+  title,
+  body,
+  imagePrompt,
+  icon: Icon,
+  theme,
+  accentColor,
+}) {
   return (
     <div
       className={`w-full h-[1080px] overflow-hidden relative flex flex-col items-center px-20 py-24 text-center ${theme.background}`}
     >
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
+      <DynamicVisualScene
+        imagePrompt={imagePrompt}
+        title={title}
+        body={body}
+        accentColor={accentColor || theme.accentColor}
+      />
 
       <GlowOrb
         className="top-10 left-10 w-[260px] h-[260px]"

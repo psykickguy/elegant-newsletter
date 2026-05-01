@@ -5,12 +5,15 @@ import {
   DotGrid,
   DashboardWidget,
 } from "../components/DecorativeElements";
+import DynamicVisualScene from "../components/DynamicVisualScene";
 
 export default function SplitLeftTextRightImage({
   title,
   body,
+  imagePrompt,
   icon: Icon,
   theme,
+  accentColor,
 }) {
   return (
     <div
@@ -39,6 +42,12 @@ export default function SplitLeftTextRightImage({
       </div>
 
       <div className="w-1/2 relative flex items-center justify-center overflow-hidden">
+        <DynamicVisualScene
+          imagePrompt={imagePrompt}
+          title={title}
+          body={body}
+          accentColor={accentColor || theme.accentColor}
+        />
         <GlowOrb
           className="w-[420px] h-[420px] right-10 top-32"
           color="bg-cyan-400/15"

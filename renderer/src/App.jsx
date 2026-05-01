@@ -1,4 +1,4 @@
-import generatedCarousel from "./sample-data/generatedCarousel.json";
+import generatedCarousel from "./runtime/generatedCarousel.json";
 import { resolveSlide } from "./utils/resolveSlideComponent";
 import DownloadLinksCard from "./components/DownloadLinksCard";
 
@@ -33,6 +33,7 @@ export default function App() {
         <LayoutComponent
           title={slide.title}
           body={slide.body}
+          imagePrompt={slide.imagePrompt}
           practices={slide.practices}
           highlight={slide.highlight}
           cta={slide.cta}

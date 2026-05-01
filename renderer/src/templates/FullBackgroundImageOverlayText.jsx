@@ -4,12 +4,15 @@ import {
   DotGrid,
   GradientLine,
 } from "../components/DecorativeElements";
+import DynamicVisualScene from "../components/DynamicVisualScene";
 
 export default function FullBackgroundImageOverlayText({
   title,
   body,
+  imagePrompt,
   icon: Icon,
   theme,
+  accentColor,
 }) {
   return (
     <div
@@ -17,6 +20,12 @@ export default function FullBackgroundImageOverlayText({
     >
       <div className="absolute inset-0 bg-black/30 z-10" />
       <div className={`absolute inset-0 ${theme.decorativeGradient}`} />
+      <DynamicVisualScene
+        imagePrompt={imagePrompt}
+        title={title}
+        body={body}
+        accentColor={accentColor || theme.accentColor}
+      />
 
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
         <GlowOrb

@@ -25,18 +25,18 @@
       "url": "https://res.cloudinary.com/djhkxhn23/image/upload/v1777328050/elegant-newsletter/slide-6.png"
     }
   ],
-  "pdf": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777328043/elegant-newsletter/carousel.pdf",
-  "zip": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777328042/elegant-newsletter/carousel-assets.zip",
+  "pdf": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777639801/elegant-newsletter/carousel.pdf",
+  "zip": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777639800/elegant-newsletter/carousel-assets.zip",
   "textFiles": [
     {
       "file": "linkedin-post.txt",
-      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1775329668/elegant-newsletter/linkedin-post.txt"
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777639803/elegant-newsletter/linkedin-post.txt"
     }
   ],
   "metadataFiles": [
     {
       "file": "linkedin-post.json",
-      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777328043/elegant-newsletter/linkedin-post.json"
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777639802/elegant-newsletter/linkedin-post.json"
     },
     {
       "file": "metadata.json",
@@ -44,7 +44,7 @@
     },
     {
       "file": "uploaded-assets.json",
-      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777328050/elegant-newsletter/uploaded-assets.json"
+      "url": "https://res.cloudinary.com/djhkxhn23/raw/upload/v1777639813/elegant-newsletter/uploaded-assets.json"
     }
   ]
 }

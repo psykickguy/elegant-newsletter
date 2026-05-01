@@ -57,9 +57,9 @@ app.post("/render-carousel", async (req, res) => {
   try {
     const { carouselJson, linkedinPlainText } = normalizeRenderPayload(req.body);
 
-    const sampleDataPath = path.join(
+    const runtimeDataPath = path.join(
       process.cwd(),
-      "src/sample-data/generatedCarousel.json",
+      "src/runtime/generatedCarousel.json",
     );
 
     const outputDir = path.join(process.cwd(), "src/output");
@@ -69,7 +69,7 @@ app.post("/render-carousel", async (req, res) => {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    fs.writeFileSync(sampleDataPath, JSON.stringify(carouselJson, null, 2));
+    fs.writeFileSync(runtimeDataPath, JSON.stringify(carouselJson, null, 2));
 
     fs.writeFileSync(
       linkedinPostTxtPath,

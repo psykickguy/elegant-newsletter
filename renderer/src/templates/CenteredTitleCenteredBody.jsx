@@ -4,18 +4,27 @@ import {
   DotGrid,
   GradientLine,
 } from "../components/DecorativeElements";
+import DynamicVisualScene from "../components/DynamicVisualScene";
 
 export default function CenteredTitleCenteredBody({
   title,
   body,
+  imagePrompt,
   icon: Icon,
   theme,
+  accentColor,
 }) {
   return (
     <div
       className={`w-full h-[1080px] overflow-hidden relative flex items-center justify-center p-16 ${theme.background}`}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-gray-100" />
+      <div className={`absolute inset-0 ${theme.decorativeGradient || ""}`} />
+      <DynamicVisualScene
+        imagePrompt={imagePrompt}
+        title={title}
+        body={body}
+        accentColor={accentColor || theme.accentColor}
+      />
 
       <GlowOrb
         className="top-20 left-20 w-[260px] h-[260px]"

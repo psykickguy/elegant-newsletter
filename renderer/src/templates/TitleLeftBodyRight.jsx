@@ -6,8 +6,16 @@ import {
   DashboardWidget,
   GradientLine,
 } from "../components/DecorativeElements";
+import DynamicVisualScene from "../components/DynamicVisualScene";
 
-export default function TitleLeftBodyRight({ title, body, icon: Icon, theme }) {
+export default function TitleLeftBodyRight({
+  title,
+  body,
+  imagePrompt,
+  icon: Icon,
+  theme,
+  accentColor,
+}) {
   return (
     <div
       className={`w-full h-[1080px] overflow-hidden relative p-20 ${theme.background}`}
@@ -40,6 +48,12 @@ export default function TitleLeftBodyRight({ title, body, icon: Icon, theme }) {
         </div>
 
         <div className="flex-1 flex items-end justify-center relative">
+          <DynamicVisualScene
+            imagePrompt={imagePrompt}
+            title={title}
+            body={body}
+            accentColor={accentColor || theme.accentColor}
+          />
           <GlowOrb
             className="w-[500px] h-[300px] left-10 bottom-0"
             color="bg-cyan-400/10"

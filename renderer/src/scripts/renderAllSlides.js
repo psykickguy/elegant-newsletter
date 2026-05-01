@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import path from "path";
 import fs from "fs";
-import generatedCarousel from "../sample-data/generatedCarousel.json" assert { type: "json" };
+import generatedCarousel from "../runtime/generatedCarousel.json" assert { type: "json" };
 
 const outputDir = path.join(process.cwd(), "src/output");
 
@@ -30,7 +30,7 @@ async function renderSlides() {
   const totalSlides = generatedCarousel.slides.length;
 
   if (totalSlides === 0) {
-    console.log("No slides found in generatedCarousel.json");
+    console.log("No slides found in runtime/generatedCarousel.json");
     await browser.close();
     return;
   }
